@@ -200,6 +200,7 @@ together"></textarea>
       <div class="controls-row" id="pickControls" style="display:none">
         <button class="toggle-btn" id="autoCopyYBtn" onclick="toggleFlag('autoCopyY','autoCopyYBtn','\u26A1 Auto-Copy')" title="When on, all matched words are auto-copied after you type 3+ letters">&#x26A1; Auto-Copy: Off</button>
         <button class="toggle-btn" id="autoClearYBtn" onclick="toggleFlag('autoClearY','autoClearYBtn','\u239A Auto-Clear')" title="When on, the search bar is cleared after auto-copying">&#x239A; Auto-Clear: Off</button>
+        <button class="toggle-btn" id="pickSepBtn" onclick="toggleSeparator()" title="Change how the copied words are separated">&#x21C4; Sep: Space</button>
       </div>
       <div class="controls-row" id="sharedControls">
         <button class="toggle-btn" id="capsBtn" onclick="toggleCaps()" title="Toggle capitalization (Alt+C)">Aa Original</button>
@@ -273,6 +274,7 @@ together"></textarea>
       <div class="modal-row"><span class="modal-icon">↻</span><span><strong>Refresh</strong> — brings back all removed words (or press <strong>Esc</strong>).</span></div>
       <div class="modal-row"><span class="modal-icon">⚡</span><span><strong>Auto-copy</strong> — automatically copies the best match once you've typed 3+ letters.</span></div>
       <div class="modal-row"><span class="modal-icon">⎚</span><span><strong>Auto-clear</strong> — clears the search bar immediately after a word is copied.</span></div>
+      <div class="modal-row"><span class="modal-icon">⇄</span><span><strong>Sep</strong> — (Yellow Tea only) changes how the copied batch is joined: <strong>Space</strong>, <strong>Comma</strong>, or <strong>New Line</strong>. Click it to cycle through the three.</span></div>
     </div>
 
     <div class="modal-section">
@@ -340,6 +342,10 @@ let autoCopy    = false;
 let autoClear   = false;
 let autoCopyY   = false;
 let autoClearY  = false;
+let sepMode     = 0;          // 0=space 1=comma 2=newline (Yellow Tea copy-paste separator)
+const SEP_CHARS  = [' ', ', ', '\n'];
+const SEP_LABELS = ['Space','Comma','New Line'];
+function getSep(){ return SEP_CHARS[sepMode]; }
 let lastACQueryS = '';        // per-mode auto-copy trackers (bug fix: was shared)
 let lastACQueryL = '';
 let lastACQueryY = '';
@@ -533,7 +539,7 @@ function renderPick(){
   const lower=query.toLowerCase(), filtered=[], n=wordCache.length;
   for(let i=0;i<n;i++) if(wordCache[i].lower.includes(lower)) filtered.push(wordCache[i]);
   if(!filtered.length){ pickStatsEl.innerHTML=`No words containing <strong>${esc(query)}</strong>.`; pickContentEl.innerHTML='<div class="empty-state">Try a different term.</div>'; return; }
-  const picked=filtered.slice(0,count), wordList=picked.map(w=>applyCase(w.orig)).join(' ');
+  const picked=filtered.slice(0,count), wordList=picked.map(w=>applyCase(w.orig)).join(getSep());
   pickStatsEl.innerHTML=`Picked <strong>${picked.length}</strong> of <strong>${filtered.length}</strong> matches for <strong>${esc(query)}</strong>`;
   pickContentEl.innerHTML=`<div class="pick-output" id="pickOutput">${esc(wordList)}</div><div class="pick-actions"><button class="pick-btn primary" id="copyAllBtn" onclick="copyAll()">Copy all ${picked.length} words</button><button class="pick-btn" onclick="reshufflePick()">&#x21BB; Shuffle new ${count}</button></div>`;
   // Auto-copy Y — own tracker
@@ -569,7 +575,7 @@ function reshufflePick(){
   for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=arr[i];arr[i]=arr[j];arr[j]=t; }
   const picked=arr.slice(0,count);
   const output=$('pickOutput'), btn=$('copyAllBtn');
-  if(output) output.textContent=picked.map(w=>applyCase(w.orig)).join(' ');
+  if(output) output.textContent=picked.map(w=>applyCase(w.orig)).join(getSep());
   if(btn) btn.textContent=`Copy all ${picked.length} words`;
 }
 
@@ -658,6 +664,14 @@ function toggleCaps(){
   btn.textContent=['Aa Original','AA UPPERCASE','aa lowercase'][capsMode];
   btn.classList.toggle('on', capsMode!==0);
   rerender();
+}
+
+function toggleSeparator(){
+  sepMode=(sepMode+1)%3;
+  const btn=$('pickSepBtn');
+  btn.textContent=`\u21C4 Sep: ${SEP_LABELS[sepMode]}`;
+  btn.classList.toggle('on', sepMode!==0);
+  if(currentMode==='pick') renderPick();
 }
 
 function toggleList(){
