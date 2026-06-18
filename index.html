@@ -91,10 +91,10 @@
   .theme-toggle-track.normal .theme-toggle-knob{left:2px}
   .theme-toggle-label{font-size:.75rem;font-weight:500;color:var(--text);white-space:nowrap;display:inline-block;min-width:4.5rem;text-align:left}
   .theme-toggle-emoji{font-size:.9rem;line-height:1}
-  /* Secret preset buttons */
-  .secret-btns{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:999;opacity:.08;transition:opacity .2s}
-  .secret-btns:hover{opacity:1}
-  .secret-btn{font-family:var(--font);font-size:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted)}
+  /* Preset dict buttons */
+  .secret-btns{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:999}
+  .secret-btn{font-family:var(--font);font-size:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted);transition:border-color .1s,color .1s}
+  .secret-btn:hover{border-color:var(--accent);color:var(--text)}
   /* Controls row */
   .controls-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem}
   /* Panes */
@@ -107,6 +107,24 @@
   .kbd{font-size:.7rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--muted);font-family:var(--mono);vertical-align:middle}
   /* Loading indicator */
   .dict-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:.5rem}
+  /* Help modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;pointer-events:none}
+  .modal-backdrop.open{opacity:1;pointer-events:auto}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:480px;width:100%;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.18);transform:translateY(12px);transition:transform .2s;max-height:90vh;overflow-y:auto}
+  .modal-backdrop.open .modal{transform:translateY(0)}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+  .modal-title{font-size:1rem;font-weight:600;letter-spacing:-.01em}
+  .modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.1rem;padding:4px 8px;border-radius:6px;line-height:1;transition:color .1s}
+  .modal-close:hover{color:var(--text)}
+  .modal-section{margin-bottom:1.1rem}
+  .modal-section:last-child{margin-bottom:0}
+  .modal-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.5rem}
+  .modal-row{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.4rem;font-size:.85rem;line-height:1.5;color:var(--text)}
+  .modal-row:last-child{margin-bottom:0}
+  .modal-icon{flex-shrink:0;width:1.3rem;text-align:center;font-size:.95rem}
+  .modal-footer{margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end}
+  .modal-btn{font-family:var(--font);font-size:.8125rem;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 20px;cursor:pointer;transition:opacity .1s}
+  .modal-btn:hover{opacity:.88}
 </style>
 </head>
 <body>
@@ -136,7 +154,7 @@
       <span class="section-title">Your word list</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="word-count-badge" id="wordCountBadge">0 words</span>
-        <button class="toggle-btn" id="toggleBtn" onclick="toggleList()">hide</button>
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleList()">Hide</button>
       </div>
     </div>
     <div class="list-body" id="listBody">
@@ -148,7 +166,7 @@
       </div>
       <div class="file-loaded" id="fileLoaded">
         <span>📄 Loaded: <span class="fname" id="fileName"></span></span>
-        <button class="remove-file" onclick="removeFile()" title="Remove file">&#x2715; remove</button>
+        <button class="remove-file" onclick="removeFile()" title="Remove file">&#x2715; Remove</button>
       </div>
       <textarea id="wordList" placeholder="Paste your words here — one per line, or comma separated.
 Example:
@@ -159,8 +177,8 @@ feather
 together"></textarea>
       <p class="textarea-hint">One word per line, or comma / space separated. Or drop a .txt file above.</p>
       <div class="dict-row">
-        <button class="toggle-btn" id="loadDictBtn" onclick="loadDictionary()" style="font-size:.8125rem;padding:5px 14px">&#x1F4D6; Load dictionary</button>
-        <button class="toggle-btn" id="resetWordListBtn" onclick="resetWordList()" style="font-size:.8125rem;padding:5px 14px;display:none">&#x2715; Reset word list</button>
+        <button class="toggle-btn" id="loadDictBtn" onclick="loadDictionary()" style="font-size:.8125rem;padding:5px 14px">&#x1F4D6; Load Dictionary</button>
+        <button class="toggle-btn" id="resetWordListBtn" onclick="resetWordList()" style="font-size:.8125rem;padding:5px 14px;display:none">&#x2715; Reset Word List</button>
         <span id="loadDictStatus" style="font-size:.75rem;color:var(--muted)"></span>
       </div>
     </div>
@@ -174,17 +192,17 @@ together"></textarea>
         <button class="mode-btn" id="modePick" onclick="setMode('pick')"><span id="modeLabelPick">&#x1F49B; Yellow Tea</span></button>
       </div>
       <div class="controls-row" id="copyControls">
-        <button class="toggle-btn" id="removeOnCopyBtn" onclick="toggleFlag('removeOnCopy','removeOnCopyBtn','\uD83D\uDDD1\uFE0F Remove on copy')" title="When on, clicking a word to copy it also removes it from the results">&#x1F5D1;&#xFE0F; Remove on copy: Off</button>
-        <button class="toggle-btn" id="autoCopyBtn" onclick="toggleFlag('autoCopy','autoCopyBtn','\u26A1 Auto-copy')" title="When on, the longest match is auto-copied after you type 3+ letters">&#x26A1; Auto-copy: Off</button>
-        <button class="toggle-btn" id="autoClearBtn" onclick="toggleFlag('autoClear','autoClearBtn','\u239A Auto-clear')" title="When on, the search bar is cleared after copying a word">&#x239A; Auto-clear: Off</button>
+        <button class="toggle-btn" id="removeOnCopyBtn" onclick="toggleFlag('removeOnCopy','removeOnCopyBtn','\uD83D\uDDD1\uFE0F Remove on Copy')" title="When on, clicking a word to copy it also removes it from the results">&#x1F5D1;&#xFE0F; Remove on Copy: Off</button>
+        <button class="toggle-btn" id="autoCopyBtn" onclick="toggleFlag('autoCopy','autoCopyBtn','\u26A1 Auto-Copy')" title="When on, the longest match is auto-copied after you type 3+ letters">&#x26A1; Auto-Copy: Off</button>
+        <button class="toggle-btn" id="autoClearBtn" onclick="toggleFlag('autoClear','autoClearBtn','\u239A Auto-Clear')" title="When on, the search bar is cleared after copying a word">&#x239A; Auto-Clear: Off</button>
         <button class="toggle-btn" id="refreshBtn" onclick="refreshWords()" title="Restore any removed words and refresh the search (Esc)">&#x21BB; Refresh</button>
       </div>
       <div class="controls-row" id="pickControls" style="display:none">
-        <button class="toggle-btn" id="autoCopyYBtn" onclick="toggleFlag('autoCopyY','autoCopyYBtn','\u26A1 Auto-copy')" title="When on, all matched words are auto-copied after you type 3+ letters">&#x26A1; Auto-copy: Off</button>
-        <button class="toggle-btn" id="autoClearYBtn" onclick="toggleFlag('autoClearY','autoClearYBtn','\u239A Auto-clear')" title="When on, the search bar is cleared after auto-copying">&#x239A; Auto-clear: Off</button>
+        <button class="toggle-btn" id="autoCopyYBtn" onclick="toggleFlag('autoCopyY','autoCopyYBtn','\u26A1 Auto-Copy')" title="When on, all matched words are auto-copied after you type 3+ letters">&#x26A1; Auto-Copy: Off</button>
+        <button class="toggle-btn" id="autoClearYBtn" onclick="toggleFlag('autoClearY','autoClearYBtn','\u239A Auto-Clear')" title="When on, the search bar is cleared after auto-copying">&#x239A; Auto-Clear: Off</button>
       </div>
       <div class="controls-row" id="sharedControls">
-        <button class="toggle-btn" id="capsBtn" onclick="toggleCaps()" title="Toggle capitalization (Alt+C)">Aa original</button>
+        <button class="toggle-btn" id="capsBtn" onclick="toggleCaps()" title="Toggle capitalization (Alt+C)">Aa Original</button>
         <button class="toggle-btn" id="extraControlsToggle" onclick="toggleExtraControls()" title="Show or hide controls">Hide</button>
       </div>
     </div>
@@ -228,7 +246,56 @@ together"></textarea>
 
 </div>
 
-<p style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none;white-space:nowrap;letter-spacing:.03em">Crafted by Claude AI &amp; ChatGPT</p>
+<!-- Help modal -->
+<div class="modal-backdrop" id="helpModal" onclick="handleBackdropClick(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">How to use Word Search</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">&#x2715;</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">Basics</div>
+      <div class="modal-row"><span class="modal-icon">🖱️</span><span><strong>Click any word</strong> to copy it to your clipboard instantly.</span></div>
+      <div class="modal-row"><span class="modal-icon">📋</span><span>Paste or drop a <strong>.txt file</strong> into the word list box to load your words.</span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">Modes</div>
+      <div class="modal-row"><span class="modal-icon">🖤</span><span><strong>Black Tea</strong> — search for individual words by typing any substring.</span></div>
+      <div class="modal-row"><span class="modal-icon">❤️</span><span><strong>Red Tea</strong> — finds the longest word(s) in your list, optionally filtered by a substring.</span></div>
+      <div class="modal-row"><span class="modal-icon">💛</span><span><strong>Yellow Tea</strong> — picks a batch of matching words at once; set the count on the right.</span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">Controls</div>
+      <div class="modal-row"><span class="modal-icon">🗑️</span><span><strong>Remove on copy</strong> — word disappears from results after you copy it.</span></div>
+      <div class="modal-row"><span class="modal-icon">↻</span><span><strong>Refresh</strong> — brings back all removed words (or press <strong>Esc</strong>).</span></div>
+      <div class="modal-row"><span class="modal-icon">⚡</span><span><strong>Auto-copy</strong> — automatically copies the best match once you've typed 3+ letters.</span></div>
+      <div class="modal-row"><span class="modal-icon">⎚</span><span><strong>Auto-clear</strong> — clears the search bar immediately after a word is copied.</span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">Preset Dictionaries</div>
+      <div class="modal-row"><span class="modal-icon">📍</span><span>You can find the preset dictionary buttons at the <strong>very top of the page</strong>.</span></div>
+      <div class="modal-row"><span class="modal-icon">📗</span><span><strong>CSW24</strong> — Collins Scrabble Words 2024, the standard for international Scrabble.</span></div>
+      <div class="modal-row"><span class="modal-icon">📘</span><span><strong>NWL2023</strong> — NASPA Word List 2023 Edition, the standard for North American Scrabble.</span></div>
+      <div class="modal-row"><span class="modal-icon">📙</span><span><strong>SOWPODS</strong> — A comprehensive combined word list widely used in competitive English Scrabble.</span></div>
+      <div class="modal-row"><span class="modal-icon">📒</span><span><strong>English™</strong> — Just English words™.</span></div>
+      <div class="modal-row"><span class="modal-icon">⚠️</span><span>The <strong>Load Dictionary</strong> button loads a general-purpose dictionary that may be less complete than the preset lists above.</span></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<div style="position:absolute;bottom:-2.2rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.5rem;white-space:nowrap">
+  <p style="font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none;letter-spacing:.03em">crafted by Claude &amp; ChatGPT</p>
+  <span style="font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none">·</span>
+  <button onclick="openModal()" style="font-size:.65rem;color:var(--accent);opacity:.55;background:none;border:none;cursor:pointer;padding:0;font-family:var(--font);letter-spacing:.03em;transition:opacity .15s" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.55'">General Info</button>
+</div>
 
 <script>
 'use strict';
@@ -588,7 +655,7 @@ function toggleFlag(flagName, btnId, label){
 function toggleCaps(){
   capsMode=(capsMode+1)%3;
   const btn=$('capsBtn');
-  btn.textContent=['Aa original','AA uppercase','aa lowercase'][capsMode];
+  btn.textContent=['Aa Original','AA UPPERCASE','aa lowercase'][capsMode];
   btn.classList.toggle('on', capsMode!==0);
   rerender();
 }
@@ -596,7 +663,7 @@ function toggleCaps(){
 function toggleList(){
   listVisible=!listVisible;
   $('listBody').classList.toggle('collapsed',!listVisible);
-  $('toggleBtn').textContent=listVisible?'hide':'show';
+  $('toggleBtn').textContent=listVisible?'Hide':'Show';
 }
 
 function toggleExtraControls(){
@@ -699,7 +766,7 @@ function _dictDone(label){
   resetBtn.style.display='';
 }
 function _dictFail(label){
-  loadDictBtn.disabled=false; loadDictBtn.textContent='\uD83D\uDCD6 Load dictionary';
+  loadDictBtn.disabled=false; loadDictBtn.textContent='\uD83D\uDCD6 Load Dictionary';
   loadDictStatus.textContent=`Failed to load${label?' '+label:''}. Try again.`;
   loadDictStatus.style.color='#dc2626';
 }
@@ -726,7 +793,7 @@ function loadPreset(name,url){ _fetchDict(url,name); }
 function resetWordList(){
   wordListEl.value=''; fileLoaded.style.display='none'; dropZone.style.display='block'; fileInput.value='';
   rebuildCache(); rerender();
-  loadDictBtn.disabled=false; loadDictBtn.textContent='\uD83D\uDCD6 Load dictionary';
+  loadDictBtn.disabled=false; loadDictBtn.textContent='\uD83D\uDCD6 Load Dictionary';
   loadDictBtn.style.color=loadDictBtn.style.borderColor='';
   loadDictStatus.textContent=''; resetBtn.style.display='none';
 }
@@ -751,8 +818,24 @@ function toggleTeaMode(){
   }
 }
 
+// ─── Help modal ──────────────────────────────────────────────────────────────
+const HELP_KEY = 'wsHelpSeen';
+function openModal(){
+  $('helpModal').classList.add('open');
+  document.addEventListener('keydown', _modalEsc);
+}
+function closeModal(){
+  $('helpModal').classList.remove('open');
+  document.removeEventListener('keydown', _modalEsc);
+  localStorage.setItem(HELP_KEY,'1');
+}
+function handleBackdropClick(e){ if(e.target===e.currentTarget) closeModal(); }
+function _modalEsc(e){ if(e.key==='Escape') closeModal(); }
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 rebuildCache(); render();
+// Show on first ever visit
+if(!localStorage.getItem(HELP_KEY)) openModal();
 </script>
 </body>
 </html>
