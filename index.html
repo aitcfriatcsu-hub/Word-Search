@@ -85,11 +85,11 @@
   .theme-toggle:hover{border-color:var(--accent)}
   .theme-toggle-track{width:32px;height:18px;border-radius:99px;position:relative;transition:background .2s;flex-shrink:0}
   .theme-toggle-track.tea{background:#c8a96e}
-  .theme-toggle-track.normal{background:#94a3b8}
+  .theme-toggle-track.normal{background:#818cf8}
   .theme-toggle-knob{position:absolute;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s}
   .theme-toggle-track.tea .theme-toggle-knob{left:16px}
   .theme-toggle-track.normal .theme-toggle-knob{left:2px}
-  .theme-toggle-label{font-size:.75rem;font-weight:500;color:var(--text);white-space:nowrap;display:inline-block;min-width:4.5rem;text-align:left}
+  .theme-toggle-label{font-size:.75rem;font-weight:500;color:var(--text);white-space:nowrap;display:inline-block;min-width:5.5rem;text-align:left}
   .theme-toggle-emoji{font-size:.9rem;line-height:1}
   /* Preset dict buttons */
   .secret-btns{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:999}
@@ -107,6 +107,30 @@
   .kbd{font-size:.7rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--muted);font-family:var(--mono);vertical-align:middle}
   /* Loading indicator */
   .dict-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:.5rem}
+  /* Wordle Solver */
+  .wordle-grid{display:flex;gap:6px;margin-bottom:1rem;justify-content:center}
+  .wordle-col{display:flex;flex-direction:column;gap:6px}
+  .wordle-cell{width:52px;height:52px;border:2px solid var(--border);border-radius:8px;font-size:1.25rem;font-weight:700;text-align:center;text-transform:uppercase;background:var(--surface);color:var(--text);cursor:pointer;outline:none;transition:border-color .15s,background .15s,color .15s;caret-color:transparent;font-family:var(--font)}
+  .wordle-cell:focus{border-color:var(--accent)}
+  .wordle-cell.green{background:#16a34a;border-color:#16a34a;color:#fff}
+  .wordle-cell.yellow{background:#ca8a04;border-color:#ca8a04;color:#fff}
+  .wordle-cell.grey{background:#6b7280;border-color:#6b7280;color:#fff}
+  .wordle-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin-bottom:1rem;justify-content:center}
+  .wordle-legend-item{display:flex;align-items:center;gap:5px}
+  .wordle-legend-dot{width:14px;height:14px;border-radius:4px;display:inline-block}
+  .wordle-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;justify-content:center}
+  .wordle-guess-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;justify-content:center}
+  input.wordle-guess-input{width:52px;height:52px;padding:0;flex:0 0 auto;border:2px solid var(--border);border-radius:8px;font-size:1.25rem;font-weight:700;text-align:center;text-transform:uppercase;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s,background .15s,color .15s;font-family:var(--font)}
+  input.wordle-guess-input:focus{border-color:var(--accent);box-shadow:none}
+  .wordle-guess-input.green{background:#16a34a;border-color:#16a34a;color:#fff}
+  .wordle-guess-input.yellow{background:#ca8a04;border-color:#ca8a04;color:#fff}
+  .wordle-guess-input.grey{background:#6b7280;border-color:#6b7280;color:#fff}
+  .wordle-row-remove{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:4px 6px;border-radius:6px;transition:color .1s;line-height:1}
+  .wordle-row-remove:hover{color:#dc2626}
+  .wordle-results-count{font-size:.8125rem;color:var(--muted);margin-bottom:.75rem;text-align:center}
+  .wordle-results-count strong{color:var(--text)}
+  #wordleStatus{font-size:.8125rem;color:var(--muted);text-align:center;margin-bottom:.5rem;min-height:1.2em}
+  .wordle-loading{font-size:.8125rem;color:var(--muted);text-align:center;padding:1rem 0}
   /* Help modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;pointer-events:none}
   .modal-backdrop.open{opacity:1;pointer-events:auto}
@@ -130,7 +154,7 @@
 <body>
 <div class="wrapper">
 
-  <div class="secret-btns">
+  <div class="secret-btns" id="secretBtns">
     <button class="secret-btn" onclick="loadPreset('CSW24','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/CSW24.txt')">CSW24</button>
     <button class="secret-btn" onclick="loadPreset('NWL2023','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/NWL2023.txt')">NWL2023</button>
     <button class="secret-btn" onclick="loadPreset('SOWPODS','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/sowpods.txt')">SOWPODS</button>
@@ -139,7 +163,7 @@
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
     <h1 style="margin-bottom:0">Word Search</h1>
-    <div class="theme-toggle" onclick="toggleTeaMode()" title="Switch between Tea Mode and Normal Mode">
+    <div class="theme-toggle" onclick="toggleTeaMode()" title="Switch between Tea Mode and Wordle Mode">
       <div class="theme-toggle-track tea" id="teaTrack">
         <div class="theme-toggle-knob"></div>
       </div>
@@ -149,6 +173,7 @@
   </div>
   <p class="subtitle">Type anything to instantly find matching words from your list.</p>
 
+  <div id="teaSection">
   <div class="section">
     <div class="section-header">
       <span class="section-title">Your word list</span>
@@ -183,7 +208,32 @@ together"></textarea>
       </div>
     </div>
   </div>
+  </div>
 
+  <!-- Wordle Mode Section -->
+  <div id="wordleSection" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Wordle Solver</span>
+        <span class="word-count-badge" id="wordleDictBadge">loading…</span>
+      </div>
+      <p style="font-size:.8125rem;color:var(--muted);margin-bottom:1rem">Enter your guesses below. Click each letter to cycle its color: <strong style="color:#6b7280">grey</strong> = not in word, <strong style="color:#ca8a04">yellow</strong> = wrong position, <strong style="color:#16a34a">green</strong> = correct position.</p>
+
+      <div id="wordleGuessRows"></div>
+
+      <div class="wordle-actions">
+        <button class="pick-btn" onclick="addWordleRow()">+ Add Row</button>
+        <button class="pick-btn primary" onclick="solveWordle()">🔍 Solve</button>
+        <button class="pick-btn" onclick="resetWordle()">↺ Reset</button>
+      </div>
+
+      <div id="wordleStatus"></div>
+      <div class="wordle-results-count" id="wordleCount" style="display:none"></div>
+      <div class="results" id="wordleResults" style="justify-content:center"></div>
+    </div>
+  </div>
+
+  <div id="teaModeSection">
   <div class="section">
     <div style="margin-bottom:.75rem">
       <div class="mode-toggle" style="margin-bottom:.5rem">
@@ -246,8 +296,6 @@ together"></textarea>
   </div>
 
 </div>
-
-<!-- Help modal -->
 <div class="modal-backdrop" id="helpModal" onclick="handleBackdropClick(event)">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
@@ -829,12 +877,23 @@ function toggleTeaMode(){
     $('modeLabelSearch').innerHTML='&#x1F5A4; Black Tea';
     $('modeLabelLongest').innerHTML='&#x2764;&#xFE0F; Red Tea';
     $('modeLabelPick').innerHTML='&#x1F49B; Yellow Tea';
+    // Show tea UI, hide wordle UI
+    $('teaSection').style.display='';
+    $('teaModeSection').style.display='';
+    $('wordleSection').style.display='none';
+    $('secretBtns').style.display='';
   } else {
     track.className='theme-toggle-track normal';
-    emoji.textContent='🔍'; label.textContent='Normal';
-    $('modeLabelSearch').innerHTML='&#x1F539; Single Word';
-    $('modeLabelLongest').innerHTML='&#x1F4CF; Longest Word';
-    $('modeLabelPick').innerHTML='&#x1F4CB; Multiple Words';
+    emoji.textContent='🟩'; label.textContent='Wordle Mode';
+    // Hide tea UI, show wordle UI
+    $('teaSection').style.display='none';
+    $('teaModeSection').style.display='none';
+    $('wordleSection').style.display='';
+    $('secretBtns').style.display='none';
+    // Load wordle dictionary if not yet loaded
+    if(!wordleWords.length && !wordleLoading) loadWordleDict();
+    // Add initial row if none exist
+    if(!$('wordleGuessRows').children.length) addWordleRow();
   }
 }
 
@@ -856,6 +915,187 @@ function _modalEsc(e){ if(e.key==='Escape') closeModal(); }
 rebuildCache(); render();
 // Show on first ever visit
 if(!localStorage.getItem(HELP_KEY)) openModal();
+
+// ─── Wordle Solver ─────────────────────────────────────────────────────────────
+let wordleWords = [];
+let wordleLoading = false;
+let wordleRowCount = 0;
+
+async function loadWordleDict(){
+  wordleLoading = true;
+  const badge = $('wordleDictBadge');
+  if(badge) badge.textContent = 'loading…';
+  try {
+    const res = await fetch('https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    wordleWords = text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{5}$/.test(w));
+    if(badge) badge.textContent = wordleWords.length.toLocaleString()+' words';
+  } catch(e) {
+    wordleLoading = false;
+    if(badge) badge.textContent = 'failed to load';
+    $('wordleStatus').textContent = '⚠️ Could not load dictionary. Check your connection.';
+    return;
+  }
+  wordleLoading = false;
+  $('wordleStatus').textContent = '';
+}
+
+function addWordleRow(){
+  wordleRowCount++;
+  const rowId = 'wrow-'+wordleRowCount;
+  const row = document.createElement('div');
+  row.className = 'wordle-guess-row';
+  row.id = rowId;
+  row.dataset.rownum = wordleRowCount;
+
+  for(let i=0;i<5;i++){
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.maxLength = 1;
+    inp.className = 'wordle-guess-input';
+    inp.dataset.state = 'empty'; // empty, grey, yellow, green
+    inp.autocomplete = 'off';
+    inp.spellcheck = false;
+    inp.dataset.col = i;
+
+    // Cycle color on click
+    inp.addEventListener('click', function(){
+      const letter = this.value.trim();
+      if(!letter) return;
+      const states = ['grey','yellow','green'];
+      const cur = this.dataset.state === 'empty' ? -1 : states.indexOf(this.dataset.state);
+      const next = states[(cur+1)%3];
+      this.dataset.state = next;
+      this.className = 'wordle-guess-input '+next;
+    });
+
+    // Auto-advance on typing
+    inp.addEventListener('input', function(){
+      const val = this.value.replace(/[^a-zA-Z]/g,'');
+      this.value = val ? val[val.length-1].toUpperCase() : '';
+      if(this.value){
+        if(this.dataset.state === 'empty') { this.dataset.state='grey'; this.className='wordle-guess-input grey'; }
+        const inputs = this.closest('.wordle-guess-row').querySelectorAll('.wordle-guess-input');
+        const idx = parseInt(this.dataset.col);
+        if(idx < 4) inputs[idx+1].focus();
+      } else {
+        this.dataset.state = 'empty';
+        this.className = 'wordle-guess-input';
+      }
+    });
+
+    // Backspace goes back
+    inp.addEventListener('keydown', function(e){
+      if(e.key === 'Backspace' && !this.value){
+        const inputs = this.closest('.wordle-guess-row').querySelectorAll('.wordle-guess-input');
+        const idx = parseInt(this.dataset.col);
+        if(idx > 0){ inputs[idx-1].focus(); inputs[idx-1].value=''; inputs[idx-1].dataset.state='empty'; inputs[idx-1].className='wordle-guess-input'; }
+      }
+      if(e.key === 'Enter') solveWordle();
+    });
+
+    row.appendChild(inp);
+  }
+
+  // Remove row button
+  const rmBtn = document.createElement('button');
+  rmBtn.className = 'wordle-row-remove';
+  rmBtn.innerHTML = '✕';
+  rmBtn.title = 'Remove this row';
+  rmBtn.addEventListener('click', function(){ row.remove(); });
+  row.appendChild(rmBtn);
+
+  $('wordleGuessRows').appendChild(row);
+  row.querySelector('.wordle-guess-input').focus();
+}
+
+function resetWordle(){
+  $('wordleGuessRows').innerHTML = '';
+  $('wordleResults').innerHTML = '';
+  $('wordleStatus').textContent = '';
+  $('wordleCount').style.display = 'none';
+  wordleRowCount = 0;
+  addWordleRow();
+}
+
+function solveWordle(){
+  if(!wordleWords.length){
+    $('wordleStatus').textContent = wordleLoading ? '⏳ Dictionary still loading…' : '⚠️ Dictionary not loaded yet.';
+    if(!wordleLoading && !wordleWords.length) loadWordleDict();
+    return;
+  }
+
+  const greens = Array(5).fill(null);   // letter at exact position
+  const yellows = Array(5).fill(null).map(()=>new Set()); // letters NOT at this position but in word
+  const yellowLetters = new Set();       // letters that must appear
+  const greys = new Set();               // letters not in word at all
+
+  const rows = $('wordleGuessRows').querySelectorAll('.wordle-guess-row');
+  let hasInput = false;
+
+  rows.forEach(row=>{
+    const inputs = row.querySelectorAll('.wordle-guess-input');
+    const letters = Array.from(inputs).map(i=>i.value.trim().toLowerCase());
+    const states  = Array.from(inputs).map(i=>i.dataset.state);
+    if(letters.every(l=>!l)) return;
+    hasInput = true;
+    for(let i=0;i<5;i++){
+      const l=letters[i], s=states[i];
+      if(!l) continue;
+      if(s==='green'){ greens[i]=l; yellowLetters.add(l); }
+      else if(s==='yellow'){ yellows[i].add(l); yellowLetters.add(l); }
+      else if(s==='grey'){ greys.add(l); }
+    }
+  });
+
+  if(!hasInput){
+    $('wordleStatus').textContent = 'Add at least one guess above.';
+    $('wordleResults').innerHTML = '';
+    $('wordleCount').style.display='none';
+    return;
+  }
+
+  // Filter: grey letters that are also green/yellow should not be fully excluded
+  // (duplicate letter edge case — only exclude if NOT in yellowLetters)
+  const strictGreys = new Set([...greys].filter(l=>!yellowLetters.has(l)));
+
+  const matches = wordleWords.filter(word=>{
+    // Check greens
+    for(let i=0;i<5;i++) if(greens[i] && word[i]!==greens[i]) return false;
+    // Check yellows — letter must be in word but NOT at that position
+    for(let i=0;i<5;i++){
+      for(const l of yellows[i]){
+        if(word[i]===l) return false;          // wrong position
+        if(!word.includes(l)) return false;    // must be somewhere
+      }
+    }
+    // Check strict greys
+    for(const l of strictGreys) if(word.includes(l)) return false;
+    return true;
+  });
+
+  const countEl = $('wordleCount');
+  const resultsEl = $('wordleResults');
+
+  if(!matches.length){
+    $('wordleStatus').textContent = '🤔 No matching words found. Double-check your clues.';
+    countEl.style.display='none';
+    resultsEl.innerHTML='';
+    return;
+  }
+
+  $('wordleStatus').textContent = '';
+  countEl.style.display='';
+  countEl.innerHTML = `<strong>${matches.length}</strong> possible word${matches.length!==1?'s':''} remaining`;
+
+  const show = matches.slice(0, 200);
+  resultsEl.innerHTML = show.map(w=>`<div class="pill" onclick="navigator.clipboard.writeText('${w}');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),800)">${w.toUpperCase()}</div>`).join('')
+    + (matches.length>200 ? `<div class="pill more-btn" style="pointer-events:none">+${matches.length-200} more</div>` : '');
+}
+
+// Init wordle with one empty row ready — but only when entering wordle mode (lazy)
+// Don't load on page init; wait until mode is switched.
 </script>
 </body>
 </html>
