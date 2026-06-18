@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Word Search</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f7f7f5;--surface:#fff;--border:#e0ddd6;--text:#1a1a18;
+    --muted:#7a7870;--accent:#2563eb;--highlight-bg:#fef08a;
+    --highlight-text:#713f12;--pill-bg:#f0efe9;--radius:10px;
+    --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono','Fira Mono',monospace
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#141412;--surface:#1e1e1b;--border:#2e2e2a;--text:#f0efe9;
+      --muted:#888780;--accent:#60a5fa;--highlight-bg:#854d0e;
+      --highlight-text:#fef9c3;--pill-bg:#28281f
+    }
+  }
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem;position:relative}
+  .wrapper{max-width:760px;margin:0 auto}
+  h1{font-size:1.5rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.25rem}
+  .subtitle{font-size:.875rem;color:var(--muted);margin-bottom:2rem}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+  .section-title{font-size:.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .word-count-badge{font-size:.75rem;background:var(--pill-bg);color:var(--muted);padding:2px 10px;border-radius:99px;border:1px solid var(--border)}
+  textarea{width:100%;font-family:var(--mono);font-size:.8125rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:.75rem;resize:vertical;min-height:140px;line-height:1.7;outline:none;transition:border-color .15s}
+  textarea:focus{border-color:var(--accent)}
+  .textarea-hint{font-size:.75rem;color:var(--muted);margin-top:.5rem}
+  .search-wrap{position:relative;display:flex;align-items:center}
+  .search-icon{position:absolute;left:.875rem;color:var(--muted);pointer-events:none}
+  input[type="text"]{width:100%;font-family:var(--font);font-size:1.125rem;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 2.75rem;outline:none;transition:border-color .15s,box-shadow .15s}
+  input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+  .clear-btn{position:absolute;right:.75rem;background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:4px;border-radius:6px;display:none;line-height:1;transition:color .1s}
+  .clear-btn:hover{color:var(--text)}
+  .stats{font-size:.8125rem;color:var(--muted);margin:.875rem 0 1rem;min-height:1.2em}
+  .stats strong{color:var(--text);font-weight:600}
+  .results{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:5px 14px;font-size:.9rem;color:var(--text);line-height:1.4;transition:background .1s,border-color .1s;cursor:pointer;user-select:none;position:relative}
+  .pill:hover{background:var(--surface);border-color:var(--accent)}
+  .pill.copied{border-color:#16a34a;background:var(--surface)}
+  .pill.copied::after{content:'\2713';position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:.7rem;color:#16a34a}
+  .pill mark{background:var(--highlight-bg);color:var(--highlight-text);border-radius:3px;padding:0 2px}
+  .pill-sm{font-size:.8rem}
+  .pill-sm .pill-len{color:var(--muted);font-size:.7rem}
+  .more-btn{cursor:pointer;border-style:dashed;color:var(--muted)}
+  .more-btn:hover{color:var(--text)}
+  .empty-state{font-size:.875rem;color:var(--muted);padding:.5rem 0}
+  .toggle-btn{font-size:.75rem;background:none;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:6px;cursor:pointer;transition:background .1s,color .1s}
+  .toggle-btn:hover{background:var(--pill-bg);color:var(--text)}
+  .toggle-btn.on{color:var(--accent);border-color:var(--accent)}
+  .list-body{overflow:hidden;transition:max-height .25s ease;max-height:600px}
+  .list-body.collapsed{max-height:0}
+  .drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:.75rem;position:relative}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent)}
+  .drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .drop-zone-icon{font-size:1.5rem;margin-bottom:.375rem}
+  .drop-zone-label{font-size:.875rem;color:var(--muted)}
+  .drop-zone-label strong{color:var(--accent);font-weight:500}
+  .drop-zone-sub{font-size:.75rem;color:var(--muted);margin-top:.25rem}
+  .file-loaded{display:none;align-items:center;gap:8px;font-size:.8125rem;color:var(--muted);margin-top:.5rem}
+  .file-loaded .fname{font-weight:500;color:var(--text)}
+  .remove-file{background:none;border:none;cursor:pointer;color:var(--muted);font-size:.875rem;padding:2px 6px;border-radius:4px;transition:color .1s;margin-left:auto}
+  .remove-file:hover{color:var(--text)}
+  .mode-toggle{display:flex;gap:4px;background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:1rem;overflow:hidden}
+  .mode-btn{flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .mode-btn.active{background:var(--surface);color:var(--text);font-weight:500;border:1px solid var(--border)}
+  .longest-card{background:var(--pill-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem}
+  .longest-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem}
+  .longest-word-pill{display:inline-block;font-size:1.75rem;font-weight:600;letter-spacing:-.02em;word-break:break-all;margin-bottom:.25rem}
+  .longest-len{font-size:.8125rem;color:var(--muted);margin-top:.25rem}
+  .runner-up-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:1rem}
+  .runner-up-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem}
+  .pick-output{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;font-family:var(--mono);font-size:.875rem;line-height:2;color:var(--text);white-space:pre-wrap;word-break:break-word;margin-bottom:.75rem;min-height:60px}
+  .pick-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .pick-btn{font-family:var(--font);font-size:.8125rem;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 16px;cursor:pointer;color:var(--text);transition:background .1s,border-color .1s}
+  .pick-btn:hover{background:var(--pill-bg);border-color:var(--accent)}
+  .pick-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .pick-btn.primary:hover{opacity:.88}
+  .pick-btn.success{border-color:#16a34a;color:#16a34a}
+  .theme-toggle{display:flex;align-items:center;gap:5px;background:var(--pill-bg);border:1px solid var(--border);border-radius:99px;padding:3px 10px 3px 5px;cursor:pointer;transition:background .15s,border-color .15s;user-select:none}
+  .theme-toggle:hover{border-color:var(--accent)}
+  .theme-toggle-track{width:32px;height:18px;border-radius:99px;position:relative;transition:background .2s;flex-shrink:0}
+  .theme-toggle-track.tea{background:#c8a96e}
+  .theme-toggle-track.normal{background:#94a3b8}
+  .theme-toggle-knob{position:absolute;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s}
+  .theme-toggle-track.tea .theme-toggle-knob{left:16px}
+  .theme-toggle-track.normal .theme-toggle-knob{left:2px}
+  .theme-toggle-label{font-size:.75rem;font-weight:500;color:var(--text);white-space:nowrap;display:inline-block;min-width:4.5rem;text-align:left}
+  .theme-toggle-emoji{font-size:.9rem;line-height:1}
+  /* Secret preset buttons */
+  .secret-btns{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:999;opacity:.08;transition:opacity .2s}
+  .secret-btns:hover{opacity:1}
+  .secret-btn{font-family:var(--font);font-size:.7rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted)}
+  /* Controls row */
+  .controls-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem}
+  /* Panes */
+  .pane{display:none}
+  .pane.active{display:block}
+  /* Pick count input */
+  .pick-count-input{width:70px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:.9rem;font-family:var(--font);background:var(--surface);color:var(--text);text-align:center;outline:none}
+  .pick-count-input:focus{border-color:var(--accent)}
+  /* Keyboard shortcut hint */
+  .kbd{font-size:.7rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--muted);font-family:var(--mono);vertical-align:middle}
+  /* Loading indicator */
+  .dict-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:.5rem}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="secret-btns">
+    <button class="secret-btn" onclick="loadPreset('CSW24','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/CSW24.txt')">CSW24</button>
+    <button class="secret-btn" onclick="loadPreset('NWL2023','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/NWL2023.txt')">NWL2023</button>
+    <button class="secret-btn" onclick="loadPreset('SOWPODS','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/sowpods.txt')">SOWPODS</button>
+    <button class="secret-btn" onclick="loadPreset('English&#x2122;','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/words.txt')">English&#x2122;</button>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
+    <h1 style="margin-bottom:0">Word Search</h1>
+    <div class="theme-toggle" onclick="toggleTeaMode()" title="Switch between Tea Mode and Normal Mode">
+      <div class="theme-toggle-track tea" id="teaTrack">
+        <div class="theme-toggle-knob"></div>
+      </div>
+      <span class="theme-toggle-emoji" id="teaEmoji">🍵</span>
+      <span class="theme-toggle-label" id="teaLabel">Tea Mode</span>
+    </div>
+  </div>
+  <p class="subtitle">Type anything to instantly find matching words from your list.</p>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Your word list</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="word-count-badge" id="wordCountBadge">0 words</span>
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleList()">hide</button>
+      </div>
+    </div>
+    <div class="list-body" id="listBody">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".txt" />
+        <div class="drop-zone-icon">📄</div>
+        <div class="drop-zone-label"><strong>Drop your .txt file here</strong> or click to browse</div>
+        <div class="drop-zone-sub">Replaces the word list below when loaded</div>
+      </div>
+      <div class="file-loaded" id="fileLoaded">
+        <span>📄 Loaded: <span class="fname" id="fileName"></span></span>
+        <button class="remove-file" onclick="removeFile()" title="Remove file">&#x2715; remove</button>
+      </div>
+      <textarea id="wordList" placeholder="Paste your words here — one per line, or comma separated.
+Example:
+ethernet
+mathematics
+weather
+feather
+together"></textarea>
+      <p class="textarea-hint">One word per line, or comma / space separated. Or drop a .txt file above.</p>
+      <div class="dict-row">
+        <button class="toggle-btn" id="loadDictBtn" onclick="loadDictionary()" style="font-size:.8125rem;padding:5px 14px">&#x1F4D6; Load dictionary</button>
+        <button class="toggle-btn" id="resetWordListBtn" onclick="resetWordList()" style="font-size:.8125rem;padding:5px 14px;display:none">&#x2715; Reset word list</button>
+        <span id="loadDictStatus" style="font-size:.75rem;color:var(--muted)"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="margin-bottom:.75rem">
+      <div class="mode-toggle" style="margin-bottom:.5rem">
+        <button class="mode-btn active" id="modeSearch" onclick="setMode('search')"><span id="modeLabelSearch">&#x1F5A4; Black Tea</span></button>
+        <button class="mode-btn" id="modeLongest" onclick="setMode('longest')"><span id="modeLabelLongest">&#x2764;&#xFE0F; Red Tea</span></button>
+        <button class="mode-btn" id="modePick" onclick="setMode('pick')"><span id="modeLabelPick">&#x1F49B; Yellow Tea</span></button>
+      </div>
+      <div class="controls-row" id="copyControls">
+        <button class="toggle-btn" id="removeOnCopyBtn" onclick="toggleFlag('removeOnCopy','removeOnCopyBtn','\uD83D\uDDD1\uFE0F Remove on copy')" title="When on, clicking a word to copy it also removes it from the results">&#x1F5D1;&#xFE0F; Remove on copy: Off</button>
+        <button class="toggle-btn" id="autoCopyBtn" onclick="toggleFlag('autoCopy','autoCopyBtn','\u26A1 Auto-copy')" title="When on, the longest match is auto-copied after you type 3+ letters">&#x26A1; Auto-copy: Off</button>
+        <button class="toggle-btn" id="autoClearBtn" onclick="toggleFlag('autoClear','autoClearBtn','\u239A Auto-clear')" title="When on, the search bar is cleared after copying a word">&#x239A; Auto-clear: Off</button>
+        <button class="toggle-btn" id="refreshBtn" onclick="refreshWords()" title="Restore any removed words and refresh the search (Esc)">&#x21BB; Refresh</button>
+      </div>
+      <div class="controls-row" id="pickControls" style="display:none">
+        <button class="toggle-btn" id="autoCopyYBtn" onclick="toggleFlag('autoCopyY','autoCopyYBtn','\u26A1 Auto-copy')" title="When on, all matched words are auto-copied after you type 3+ letters">&#x26A1; Auto-copy: Off</button>
+        <button class="toggle-btn" id="autoClearYBtn" onclick="toggleFlag('autoClearY','autoClearYBtn','\u239A Auto-clear')" title="When on, the search bar is cleared after auto-copying">&#x239A; Auto-clear: Off</button>
+      </div>
+      <div class="controls-row" id="sharedControls">
+        <button class="toggle-btn" id="capsBtn" onclick="toggleCaps()" title="Toggle capitalization (Alt+C)">Aa original</button>
+        <button class="toggle-btn" id="extraControlsToggle" onclick="toggleExtraControls()" title="Show or hide controls">Hide</button>
+      </div>
+    </div>
+
+    <!-- Search Pane -->
+    <div id="searchPane" class="pane active">
+      <div class="search-wrap">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Type to search… (/ to focus)" autocomplete="off" spellcheck="false" />
+        <button class="clear-btn" id="clearBtn" onclick="clearSearch()" aria-label="Clear search">&#x2715;</button>
+      </div>
+      <div class="stats" id="stats">Enter your words above, then start typing to search.</div>
+      <div class="results" id="results"></div>
+    </div>
+
+    <!-- Longest Pane -->
+    <div id="longestPane" class="pane">
+      <div class="search-wrap" style="margin-bottom:.875rem">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="longestSearchInput" placeholder="Filter by substring… e.g. eth" autocomplete="off" spellcheck="false" />
+        <button class="clear-btn" id="longestClearBtn" onclick="clearLongestSearch()" aria-label="Clear filter">&#x2715;</button>
+      </div>
+      <div class="stats" id="longestStats"></div>
+      <div id="longestContent"></div>
+    </div>
+
+    <!-- Pick Pane -->
+    <div id="pickPane" class="pane">
+      <div style="display:flex;gap:8px;margin-bottom:.875rem">
+        <div class="search-wrap" style="flex:1">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="pickInput" placeholder="Type letters to find… e.g. eth" autocomplete="off" spellcheck="false" />
+          <button class="clear-btn" id="pickClearBtn" onclick="clearPick()" aria-label="Clear">&#x2715;</button>
+        </div>
+        <input type="number" id="pickCount" class="pick-count-input" value="10" min="1" max="500" title="How many words to pick" />
+      </div>
+      <div class="stats" id="pickStats"></div>
+      <div id="pickContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<p style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none;white-space:nowrap;letter-spacing:.03em">Crafted by Claude AI &amp; ChatGPT</p>
+
+<script>
+'use strict';
+
+// ─── DOM refs ───────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const wordListEl   = $('wordList');
+const searchInput  = $('searchInput');
+const resultsEl    = $('results');
+const statsEl      = $('stats');
+const clearBtn     = $('clearBtn');
+const wordCountBadge = $('wordCountBadge');
+const dropZone     = $('dropZone');
+const fileInput    = $('fileInput');
+const fileLoaded   = $('fileLoaded');
+const fileNameEl   = $('fileName');
+const lStatsEl     = $('longestStats');
+const lContentEl   = $('longestContent');
+const lInput       = $('longestSearchInput');
+const lClearBtn    = $('longestClearBtn');
+const pickInput    = $('pickInput');
+const pickClearBtn = $('pickClearBtn');
+const pickStatsEl  = $('pickStats');
+const pickContentEl= $('pickContent');
+const pickCountEl  = $('pickCount');
+const loadDictBtn  = $('loadDictBtn');
+const loadDictStatus=$('loadDictStatus');
+const resetBtn     = $('resetWordListBtn');
+
+// ─── State ───────────────────────────────────────────────────────────────────
+// Each entry: { orig, lower, safe }  (safe = HTML-escaped orig, computed once)
+let wordCache        = [];
+let sortedCache      = [];   // sorted by length desc
+let activeSortedCache= null; // lazy, invalidated when removedL changes
+let removedS    = new Set();
+let removedL    = new Set();
+let currentMode = 'search';
+let listVisible = true;
+let capsMode    = 0;          // 0=orig 1=UPPER 2=lower
+let removeOnCopy= false;
+let autoCopy    = false;
+let autoClear   = false;
+let autoCopyY   = false;
+let autoClearY  = false;
+let lastACQueryS = '';        // per-mode auto-copy trackers (bug fix: was shared)
+let lastACQueryL = '';
+let lastACQueryY = '';
+let extraVisible= true;
+let debounceS=0, debounceL=0, debounceP=0, debounceW=0;
+const PAGE_SIZE = 300;
+
+// ─── Utilities ───────────────────────────────────────────────────────────────
+const ESC_MAP = {'&':'&amp;','<':'&lt;','>':'&gt;'};
+function esc(s){ return s.replace(/[&<>]/g, c => ESC_MAP[c]); }
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function applyCase(s){ return capsMode===1?s.toUpperCase():capsMode===2?s.toLowerCase():s; }
+function getPickCount(){ const n=parseInt(pickCountEl.value,10); return n>0?n:10; }
+
+// ─── Cache building ──────────────────────────────────────────────────────────
+function rebuildCache(){
+  const raw = wordListEl.value;
+  const seen = new Set();
+  wordCache = [];
+  const len = raw.length;
+  let start = 0;
+  for(let i=0; i<=len; i++){
+    const ch = raw.charCodeAt(i);
+    if(i===len || ch===10 || ch===44 || ch===13 || ch===32){
+      if(i > start){
+        const orig = raw.slice(start, i);
+        const lower = orig.toLowerCase();
+        if(!seen.has(lower)){ seen.add(lower); wordCache.push({orig, lower, safe:esc(orig)}); }
+      }
+      start = i+1;
+    }
+  }
+  // Sort by length descending — stable enough for JS engines post-ES2019
+  sortedCache = wordCache.slice().sort((a,b) => b.orig.length - a.orig.length);
+  removedS.clear(); removedL.clear(); activeSortedCache=null;
+  const n = wordCache.length;
+  wordCountBadge.textContent = n===1 ? '1 word' : n.toLocaleString()+' words';
+}
+
+// ─── Active word helpers ──────────────────────────────────────────────────────
+function activeWords(){
+  if(!removedS.size) return wordCache;
+  const out=[], n=wordCache.length;
+  for(let i=0;i<n;i++) if(!removedS.has(wordCache[i].lower)) out.push(wordCache[i]);
+  return out;
+}
+function activeSorted(){
+  if(!removedL.size) return sortedCache;
+  if(activeSortedCache) return activeSortedCache;
+  const out=[], n=sortedCache.length;
+  for(let i=0;i<n;i++) if(!removedL.has(sortedCache[i].lower)) out.push(sortedCache[i]);
+  return (activeSortedCache=out);
+}
+function removedNote(set){
+  return set.size
+    ? ` <span style="color:var(--muted)">&middot; ${set.size} copied &amp; removed (<a href="#" onclick="refreshWords();return false" style="color:var(--accent);text-decoration:none">refresh</a>)</span>`
+    : '';
+}
+
+// ─── Pill HTML helpers ────────────────────────────────────────────────────────
+// Build pill HTML into a pre-allocated array slot — avoids array.join overhead on huge lists
+function pillHtml(w, re){
+  const d = capsMode===0 ? w.safe : esc(applyCase(w.orig));
+  return `<div class="pill" data-word="${w.safe}">${re ? d.replace(re,'<mark>$1</mark>') : d}</div>`;
+}
+function pillHtmlSm(w, re){
+  const d = capsMode===0 ? w.safe : esc(applyCase(w.orig));
+  return `<div class="pill pill-sm" data-word="${w.safe}">${re ? d.replace(re,'<mark>$1</mark>') : d} <span class="pill-len">${w.orig.length}</span></div>`;
+}
+
+// ─── Render: Search ──────────────────────────────────────────────────────────
+function render(showAll){
+  const query = searchInput.value.trim();
+  clearBtn.style.display = query ? 'block' : 'none';
+  if(!wordCache.length){
+    statsEl.innerHTML = 'Drop a .txt file or paste words above, then start typing.';
+    resultsEl.innerHTML = ''; return;
+  }
+  const active = activeWords();
+  if(!query){
+    if(!active.length){
+      statsEl.innerHTML = `All ${wordCache.length} words have been copied &amp; removed.${removedNote(removedS)}`;
+      resultsEl.innerHTML = '<div class="empty-state">Click refresh to bring them back.</div>';
+    } else {
+      statsEl.innerHTML = `<strong>${active.length}</strong> word${active.length!==1?'s':''} loaded &mdash; start typing to search${removedNote(removedS)}`;
+      resultsEl.innerHTML = '';
+    }
+    return;
+  }
+  const lower = query.toLowerCase();
+  const filtered=[], n=active.length;
+  for(let i=0;i<n;i++) if(active[i].lower.includes(lower)) filtered.push(active[i]);
+  if(!filtered.length){
+    statsEl.innerHTML = `No matches for <strong>${esc(query)}</strong> in ${active.length} words.${removedNote(removedS)}`;
+    resultsEl.innerHTML = '<div class="empty-state">Try a different term.</div>'; return;
+  }
+  const re = new RegExp(`(${escRe(query)})`,'gi');
+  const limit = showAll ? filtered.length : Math.min(filtered.length, PAGE_SIZE);
+  const parts = new Array(limit);
+  for(let i=0;i<limit;i++) parts[i] = pillHtml(filtered[i], re);
+  const rest = filtered.length - limit;
+  if(rest>0) parts.push(`<div class="pill more-btn" onclick="render(true)">+${rest} more &mdash; click to show all</div>`);
+  resultsEl.innerHTML = parts.join('');
+  statsEl.innerHTML = `<strong>${filtered.length}</strong> match${filtered.length!==1?'es':''} for <strong>${esc(query)}</strong> out of ${active.length} words`
+    +(rest>0?` <span style="color:var(--muted)">(showing first ${PAGE_SIZE})</span>`:'')
+    +removedNote(removedS);
+  // Auto-copy: fire once per unique query when 3+ chars — picks random result
+  if(autoCopy && query.length>=3 && filtered.length && query!==lastACQueryS){
+    lastACQueryS=query;
+    const pills=resultsEl.querySelectorAll('.pill:not(.more-btn)');
+    if(pills.length) copyPill(pills[Math.floor(Math.random()*pills.length)]);
+  }
+}
+
+function clearSearch(){ searchInput.value=''; lastACQueryS=''; render(); searchInput.focus(); }
+
+// ─── Render: Longest ─────────────────────────────────────────────────────────
+function renderLongest(){
+  const query = lInput.value.trim();
+  lClearBtn.style.display = query ? 'block' : 'none';
+  if(!wordCache.length){ lStatsEl.innerHTML='Drop a .txt file or paste words above first.'; lContentEl.innerHTML=''; return; }
+  const asc = activeSorted();
+  if(!asc.length){
+    lStatsEl.innerHTML=`All ${wordCache.length} words have been copied &amp; removed.${removedNote(removedL)}`;
+    lContentEl.innerHTML='<div class="empty-state">Click refresh to bring them back.</div>'; return;
+  }
+  if(query){
+    const lower=query.toLowerCase(), re=new RegExp(`(${escRe(query)})`,'gi');
+    const filtered=[], n=asc.length;
+    for(let i=0;i<n;i++) if(asc[i].lower.includes(lower)) filtered.push(asc[i]);
+    if(!filtered.length){
+      lStatsEl.innerHTML=`No words containing <strong>${esc(query)}</strong> found.${removedNote(removedL)}`;
+      lContentEl.innerHTML='<div class="empty-state">Try a different term.</div>'; return;
+    }
+    const topLen=filtered[0].orig.length, tops=[], rest=[];
+    for(let i=0;i<filtered.length;i++) filtered[i].orig.length===topLen?tops.push(filtered[i]):rest.push(filtered[i]);
+    lStatsEl.innerHTML=`<strong>${filtered.length}</strong> word${filtered.length!==1?'s':''} containing <strong>${esc(query)}</strong> &mdash; sorted longest first${removedNote(removedL)}`;
+    let html = tops.length===1
+      ? `<div class="longest-card"><div class="longest-label">Longest match</div><div class="pill longest-word-pill" data-word="${tops[0].safe}">${(capsMode===0?tops[0].safe:esc(applyCase(tops[0].orig))).replace(re,'<mark>$1</mark>')}</div><div class="longest-len">${topLen} characters</div></div>`
+      : `<div class="longest-card"><div class="longest-label">Longest matches &mdash; tied at ${topLen} characters</div><div class="runner-up-list" style="margin-top:.75rem">${tops.map(w=>pillHtml(w,re)).join('')}</div></div>`;
+    if(rest.length){
+      const shown=rest.length>PAGE_SIZE?rest.slice(0,PAGE_SIZE):rest, over=rest.length-shown.length;
+      html+=`<div class="runner-up-label" style="margin-top:1rem">All other matches</div><div class="runner-up-list">${shown.map(w=>pillHtmlSm(w,re)).join('')}${over>0?`<div class="pill more-btn" onclick="showAllLongest()">+${over} more</div>`:''}</div>`;
+    }
+    lContentEl.innerHTML=html;
+    // Auto-copy: own tracker so it doesn't interfere with Search auto-copy
+    if(autoCopy && query.length>=3 && query!==lastACQueryL){
+      lastACQueryL=query;
+      const longestWords=[];
+      for(let i=0;i<filtered.length;i++){
+        if(filtered[i].orig.length===topLen) longestWords.push(filtered[i]); else break;
+      }
+      copyWordDirect(longestWords[Math.floor(Math.random()*longestWords.length)]);
+    }
+    return;
+  }
+  // No query — show overall longest
+  const maxLen=asc[0].orig.length, longest=[], runnerUps=[];
+  for(let i=0;i<asc.length;i++){
+    const w=asc[i];
+    if(w.orig.length===maxLen) longest.push(w);
+    else if(runnerUps.length<20) runnerUps.push(w);
+    else break;
+  }
+  lStatsEl.innerHTML=`Analyzed <strong>${asc.length}</strong> words${removedNote(removedL)}`;
+  let html = longest.length===1
+    ? `<div class="longest-card"><div class="longest-label">Longest word</div><div class="pill longest-word-pill" data-word="${longest[0].safe}">${capsMode===0?longest[0].safe:esc(applyCase(longest[0].orig))}</div><div class="longest-len">${maxLen} characters</div></div>`
+    : `<div class="longest-card"><div class="longest-label">Longest words &mdash; tied at ${maxLen} characters</div><div class="runner-up-list" style="margin-top:.75rem">${longest.map(w=>pillHtml(w,null)).join('')}</div></div>`;
+  if(runnerUps.length) html+=`<div class="runner-up-label">Next longest</div><div class="runner-up-list">${runnerUps.map(w=>pillHtmlSm(w,null)).join('')}</div>`;
+  lContentEl.innerHTML=html;
+}
+
+function clearLongestSearch(){ lInput.value=''; lClearBtn.style.display='none'; lastACQueryL=''; renderLongest(); }
+
+function showAllLongest(){
+  const query=lInput.value.trim(); if(!query) return;
+  const lower=query.toLowerCase(), re=new RegExp(`(${escRe(query)})`,'gi');
+  const asc=activeSorted(), filtered=asc.filter(w=>w.lower.includes(lower));
+  if(!filtered.length) return;
+  const topLen=filtered[0].orig.length, rest=filtered.filter(w=>w.orig.length<topLen);
+  const el=lContentEl.querySelector('.runner-up-list:last-child');
+  if(el) el.innerHTML=rest.map(w=>pillHtmlSm(w,re)).join('');
+}
+
+// ─── Render: Pick ─────────────────────────────────────────────────────────────
+function renderPick(){
+  const query=pickInput.value.trim(), count=getPickCount();
+  pickClearBtn.style.display=query?'block':'none';
+  if(!wordCache.length){ pickStatsEl.innerHTML='Drop a .txt file or paste words above first.'; pickContentEl.innerHTML=''; return; }
+  if(!query){ pickStatsEl.innerHTML='Type letters above to find matching words.'; pickContentEl.innerHTML=''; return; }
+  const lower=query.toLowerCase(), filtered=[], n=wordCache.length;
+  for(let i=0;i<n;i++) if(wordCache[i].lower.includes(lower)) filtered.push(wordCache[i]);
+  if(!filtered.length){ pickStatsEl.innerHTML=`No words containing <strong>${esc(query)}</strong>.`; pickContentEl.innerHTML='<div class="empty-state">Try a different term.</div>'; return; }
+  const picked=filtered.slice(0,count), wordList=picked.map(w=>applyCase(w.orig)).join(' ');
+  pickStatsEl.innerHTML=`Picked <strong>${picked.length}</strong> of <strong>${filtered.length}</strong> matches for <strong>${esc(query)}</strong>`;
+  pickContentEl.innerHTML=`<div class="pick-output" id="pickOutput">${esc(wordList)}</div><div class="pick-actions"><button class="pick-btn primary" id="copyAllBtn" onclick="copyAll()">Copy all ${picked.length} words</button><button class="pick-btn" onclick="reshufflePick()">&#x21BB; Shuffle new ${count}</button></div>`;
+  // Auto-copy Y — own tracker
+  if(autoCopyY && query.length>=3 && query!==lastACQueryY){
+    lastACQueryY=query;
+    navigator.clipboard.writeText(wordList).then(()=>_flashCopyAll(picked.length)).catch(()=>{ clipFallback(wordList); _flashCopyAll(picked.length); });
+  }
+}
+
+function _flashCopyAll(n){
+  const btn=$('copyAllBtn'); if(!btn) return;
+  btn.textContent='\u2713 Copied!'; btn.classList.replace('primary','success');
+  // When auto-clear is on, clear immediately (80ms just to make the ✓ flash visible);
+  // otherwise hold the confirmation long enough to read it (1000ms).
+  setTimeout(()=>{
+    btn.textContent=`Copy all ${n} words`; btn.classList.replace('success','primary');
+    if(autoClearY){ lastACQueryY=''; pickInput.value=''; pickClearBtn.style.display='none'; renderPick(); }
+  }, autoClearY ? 80 : 1000);
+}
+
+function copyAll(){
+  const output=$('pickOutput'); if(!output) return;
+  const text=output.textContent.trim(), n=getPickCount();
+  navigator.clipboard.writeText(text).then(()=>_flashCopyAll(n)).catch(()=>{ clipFallback(text); _flashCopyAll(n); });
+}
+
+function reshufflePick(){
+  const query=pickInput.value.trim(); if(!query) return;
+  const lower=query.toLowerCase(), count=getPickCount();
+  const filtered=wordCache.filter(w=>w.lower.includes(lower)); if(!filtered.length) return;
+  // Fisher-Yates in-place on a copy
+  const arr=filtered.slice();
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=arr[i];arr[i]=arr[j];arr[j]=t; }
+  const picked=arr.slice(0,count);
+  const output=$('pickOutput'), btn=$('copyAllBtn');
+  if(output) output.textContent=picked.map(w=>applyCase(w.orig)).join(' ');
+  if(btn) btn.textContent=`Copy all ${picked.length} words`;
+}
+
+function clearPick(){ pickInput.value=''; pickClearBtn.style.display='none'; lastACQueryY=''; renderPick(); }
+
+// ─── Clipboard ───────────────────────────────────────────────────────────────
+function clipFallback(text){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+}
+
+function copyWordDirect(w){
+  const text=applyCase(w.orig);
+  const finish=()=>{
+    requestAnimationFrame(()=>{
+      const pill=lContentEl.querySelector(`.pill[data-word="${w.safe}"]`);
+      if(pill){
+        pill.classList.add('copied');
+        setTimeout(()=>{
+          if(removeOnCopy){ removedL.add(w.lower); activeSortedCache=null; }
+          if(autoClear){ lastACQueryL=''; lInput.value=''; lClearBtn.style.display='none'; renderLongest(); }
+          else if(removeOnCopy){ renderLongest(); }
+          else { pill.classList.remove('copied'); }
+        }, autoClear ? 80 : 450);
+      } else {
+        if(removeOnCopy){ removedL.add(w.lower); activeSortedCache=null; if(!autoClear) renderLongest(); }
+        if(autoClear){ lastACQueryL=''; lInput.value=''; lClearBtn.style.display='none'; renderLongest(); }
+      }
+    });
+  };
+  navigator.clipboard.writeText(text).then(finish).catch(()=>{ clipFallback(text); finish(); });
+}
+
+function copyPill(el){
+  const text=applyCase(el.dataset.word); if(!text) return;
+  const finish=()=>{
+    el.classList.add('copied');
+    setTimeout(()=>{
+      const key=el.dataset.word.toLowerCase();
+      if(removeOnCopy){
+        if(currentMode==='search') removedS.add(key);
+        else if(currentMode==='longest'){ removedL.add(key); activeSortedCache=null; }
+      }
+      if(autoClear){
+        if(currentMode==='search'){ lastACQueryS=''; searchInput.value=''; render(); }
+        else if(currentMode==='longest'){ lastACQueryL=''; lInput.value=''; lClearBtn.style.display='none'; renderLongest(); }
+      } else if(removeOnCopy){
+        if(currentMode==='search') render();
+        else if(currentMode==='longest') renderLongest();
+      } else {
+        el.classList.remove('copied');
+      }
+    }, autoClear ? 80 : 450);
+  };
+  navigator.clipboard.writeText(text).then(finish).catch(()=>{ clipFallback(text); finish(); });
+}
+
+// Delegate click on all result containers
+[resultsEl,lContentEl,pickContentEl].forEach(c=>{
+  c.addEventListener('click',e=>{ const p=e.target.closest('.pill:not(.more-btn)'); if(p) copyPill(p); });
+});
+
+// ─── Utility re-renders ───────────────────────────────────────────────────────
+function rerender(){ currentMode==='search'?render():currentMode==='longest'?renderLongest():renderPick(); }
+function refreshWords(){ removedS.clear(); removedL.clear(); activeSortedCache=null; rerender(); }
+
+// ─── Toggles ──────────────────────────────────────────────────────────────────
+// Generic flag toggle: flips a boolean, updates button text + .on class
+function toggleFlag(flagName, btnId, label){
+  const val = !(flagName==='removeOnCopy'?removeOnCopy:flagName==='autoCopy'?autoCopy:flagName==='autoClear'?autoClear:flagName==='autoCopyY'?autoCopyY:autoClearY);
+  if(flagName==='removeOnCopy') removeOnCopy=val;
+  else if(flagName==='autoCopy') autoCopy=val;
+  else if(flagName==='autoClear') autoClear=val;
+  else if(flagName==='autoCopyY') autoCopyY=val;
+  else autoClearY=val;
+  const btn=$(btnId);
+  btn.textContent=`${label}: ${val?'On':'Off'}`;
+  btn.classList.toggle('on', val);
+}
+
+function toggleCaps(){
+  capsMode=(capsMode+1)%3;
+  const btn=$('capsBtn');
+  btn.textContent=['Aa original','AA uppercase','aa lowercase'][capsMode];
+  btn.classList.toggle('on', capsMode!==0);
+  rerender();
+}
+
+function toggleList(){
+  listVisible=!listVisible;
+  $('listBody').classList.toggle('collapsed',!listVisible);
+  $('toggleBtn').textContent=listVisible?'hide':'show';
+}
+
+function toggleExtraControls(){
+  extraVisible=!extraVisible;
+  const btn=$('extraControlsToggle');
+  const cc=$('copyControls'), pc=$('pickControls'), sc=$('sharedControls');
+  if(extraVisible){
+    if(currentMode!=='pick') cc.style.display='flex';
+    if(currentMode==='pick') pc.style.display='flex';
+    btn.textContent='Hide'; btn.classList.remove('on');
+  } else {
+    cc.style.display='none'; pc.style.display='none';
+    btn.textContent='Show'; btn.classList.add('on');
+  }
+}
+
+// ─── Mode switching ───────────────────────────────────────────────────────────
+const MODES = ['search','longest','pick'];
+function setMode(mode){
+  currentMode=mode;
+  MODES.forEach(m=>{
+    $('mode'+m[0].toUpperCase()+m.slice(1)).classList.toggle('active',m===mode);
+    $(m+'Pane').classList.toggle('active',m===mode);
+  });
+  $('copyControls').style.display =(mode!=='pick'&&extraVisible)?'flex':'none';
+  $('pickControls').style.display =(mode==='pick'&&extraVisible)?'flex':'none';
+  if(mode==='longest') renderLongest();
+  if(mode==='pick') renderPick();
+}
+
+// ─── Debounced listeners ──────────────────────────────────────────────────────
+searchInput.addEventListener('input',()=>{ clearTimeout(debounceS); debounceS=setTimeout(render,60); });
+lInput.addEventListener('input',()=>{ clearTimeout(debounceL); debounceL=setTimeout(renderLongest,60); });
+pickInput.addEventListener('input',()=>{ clearTimeout(debounceP); debounceP=setTimeout(renderPick,60); });
+pickCountEl.addEventListener('change',()=>{ if(currentMode==='pick') renderPick(); });
+pickCountEl.addEventListener('input',()=>{ if(currentMode==='pick') renderPick(); });
+wordListEl.addEventListener('input',()=>{ clearTimeout(debounceW); debounceW=setTimeout(()=>{ rebuildCache(); rerender(); },200); });
+
+// ─── Keyboard shortcuts ───────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  // '/' focuses the active search input (unless already in an input)
+  if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){
+    e.preventDefault();
+    const inp=currentMode==='search'?searchInput:currentMode==='longest'?lInput:pickInput;
+    inp.focus(); inp.select();
+    return;
+  }
+  // Alt+C cycles caps
+  if(e.altKey && e.key.toLowerCase()==='c'){ e.preventDefault(); toggleCaps(); return; }
+  // Escape: clear active search + refresh
+  if(e.key==='Escape'){
+    if(currentMode==='search'){ if(searchInput.value){ clearSearch(); } else refreshWords(); }
+    else if(currentMode==='longest'){ if(lInput.value){ clearLongestSearch(); } else refreshWords(); }
+    else if(currentMode==='pick' && pickInput.value){ clearPick(); }
+  }
+  // Tab between modes (Shift+Tab goes back)
+  if(e.key==='Tab'&&e.altKey){
+    e.preventDefault();
+    const idx=MODES.indexOf(currentMode), next=(idx+(e.shiftKey?-1:1)+MODES.length)%MODES.length;
+    setMode(MODES[next]);
+  }
+});
+
+// ─── File loading ─────────────────────────────────────────────────────────────
+function loadText(text,name){
+  wordListEl.value=text; fileNameEl.textContent=name;
+  fileLoaded.style.display='flex'; dropZone.style.display='none';
+  rebuildCache(); render(); searchInput.focus();
+}
+function removeFile(){
+  wordListEl.value=''; fileLoaded.style.display='none';
+  dropZone.style.display='block'; fileInput.value='';
+  rebuildCache(); render();
+}
+
+fileInput.addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=ev=>loadText(ev.target.result,f.name); r.readAsText(f);
+});
+dropZone.addEventListener('dragover',e=>{ e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(!f||!f.name.endsWith('.txt')){ alert('Please drop a .txt file.'); return; }
+  const r=new FileReader(); r.onload=ev=>loadText(ev.target.result,f.name); r.readAsText(f);
+});
+
+// ─── Dictionary loading ───────────────────────────────────────────────────────
+function _dictStart(label){
+  loadDictBtn.disabled=true; loadDictBtn.textContent='\u23F3 Loading\u2026';
+  loadDictBtn.style.color=loadDictBtn.style.borderColor='';
+  loadDictStatus.textContent=label?`Loading ${label}\u2026`:'';
+  loadDictStatus.style.color=''; resetBtn.style.display='none';
+}
+function _dictDone(label){
+  loadDictBtn.textContent=`\u2713 ${label} loaded`;
+  loadDictBtn.style.color='#16a34a'; loadDictBtn.style.borderColor='#16a34a';
+  loadDictStatus.textContent=`${wordCache.length.toLocaleString()} words`;
+  resetBtn.style.display='';
+}
+function _dictFail(label){
+  loadDictBtn.disabled=false; loadDictBtn.textContent='\uD83D\uDCD6 Load dictionary';
+  loadDictStatus.textContent=`Failed to load${label?' '+label:''}. Try again.`;
+  loadDictStatus.style.color='#dc2626';
+}
+
+async function _fetchDict(url,label){
+  _dictStart(label);
+  try{
+    const res=await fetch(url);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text=await res.text();
+    if(!text||text.length<10) throw new Error('empty response');
+    wordListEl.value=text;
+    fileLoaded.style.display='none'; dropZone.style.display='none'; fileNameEl.textContent='';
+    rebuildCache(); rerender(); _dictDone(label);
+  } catch(e){
+    console.error('Dictionary load failed:',e);
+    _dictFail(label);
+  }
+}
+
+function loadDictionary(){ _fetchDict('https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/dictionary.txt','dictionary'); }
+function loadPreset(name,url){ _fetchDict(url,name); }
+
+function resetWordList(){
+  wordListEl.value=''; fileLoaded.style.display='none'; dropZone.style.display='block'; fileInput.value='';
+  rebuildCache(); rerender();
+  loadDictBtn.disabled=false; loadDictBtn.textContent='\uD83D\uDCD6 Load dictionary';
+  loadDictBtn.style.color=loadDictBtn.style.borderColor='';
+  loadDictStatus.textContent=''; resetBtn.style.display='none';
+}
+
+// ─── Tea Mode toggle ──────────────────────────────────────────────────────────
+let teaMode = true;
+function toggleTeaMode(){
+  teaMode = !teaMode;
+  const track=$('teaTrack'), emoji=$('teaEmoji'), label=$('teaLabel');
+  if(teaMode){
+    track.className='theme-toggle-track tea';
+    emoji.textContent='🍵'; label.textContent='Tea Mode';
+    $('modeLabelSearch').innerHTML='&#x1F5A4; Black Tea';
+    $('modeLabelLongest').innerHTML='&#x2764;&#xFE0F; Red Tea';
+    $('modeLabelPick').innerHTML='&#x1F49B; Yellow Tea';
+  } else {
+    track.className='theme-toggle-track normal';
+    emoji.textContent='🔍'; label.textContent='Normal';
+    $('modeLabelSearch').innerHTML='&#x1F539; Single Word';
+    $('modeLabelLongest').innerHTML='&#x1F4CF; Longest Word';
+    $('modeLabelPick').innerHTML='&#x1F4CB; Multiple Words';
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+rebuildCache(); render();
+</script>
+</body>
+</html>
