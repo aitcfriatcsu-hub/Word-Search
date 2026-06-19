@@ -155,6 +155,165 @@
   .modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
   .modal::-webkit-scrollbar-thumb:hover{background:var(--muted)}
   .modal{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  /* 3-way App Mode Toggle */
+  .app-mode-toggle{display:flex;gap:3px;background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:3px}
+  .app-mode-btn{background:none;border:none;border-radius:5px;padding:5px 11px;font-size:.75rem;font-family:var(--font);color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border .15s;white-space:nowrap;font-weight:500}
+  .app-mode-btn.active{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+  /* Crossword Solver */
+  .cw-pattern-wrap{position:relative;display:flex;align-items:center;gap:8px;margin-bottom:.75rem}
+  .cw-pattern-input{flex:1;font-family:var(--mono);font-size:1.25rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;background:var(--surface);color:var(--text);border:2px solid var(--border);border-radius:var(--radius);padding:.65rem 1rem;outline:none;transition:border-color .15s,box-shadow .15s}
+  .cw-pattern-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+  .cw-pattern-input::placeholder{font-size:1rem;letter-spacing:.02em;font-weight:400;color:var(--muted)}
+  .cw-len-badge{font-size:.75rem;background:var(--pill-bg);color:var(--muted);padding:3px 10px;border-radius:99px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0;min-width:4.5rem;text-align:center}
+  .cw-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.875rem}
+  @media(max-width:480px){.cw-fields{grid-template-columns:1fr}}
+  .cw-field label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.35rem}
+  .cw-field input{width:100%;font-family:var(--mono);font-size:.875rem;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;outline:none;transition:border-color .15s}
+  .cw-field input:focus{border-color:var(--accent)}
+  .cw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+  .cw-source-row{font-size:.75rem;color:var(--muted);margin-bottom:.875rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cw-status{font-size:.8125rem;color:var(--muted);min-height:1.2em;margin-bottom:.5rem;text-align:center}
+  .cw-count{font-size:.8125rem;color:var(--muted);margin-bottom:.75rem;text-align:center}
+  .cw-count strong{color:var(--text)}
+  .cw-results{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .cw-tile{background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:5px 14px;font-size:.9rem;font-family:var(--mono);color:var(--text);line-height:1.4;cursor:pointer;user-select:none;transition:background .1s,border-color .1s;position:relative;letter-spacing:.04em}
+  .cw-tile:hover{background:var(--surface);border-color:var(--accent)}
+  .cw-tile.copied{border-color:#16a34a;background:var(--surface)}
+  .cw-tile.copied::after{content:'\2713';position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:.7rem;color:#16a34a}
+  .cw-tile mark{background:var(--highlight-bg);color:var(--highlight-text);border-radius:3px;padding:0 1px}
+  .cw-hint{font-size:.78rem;color:var(--muted);background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .875rem;line-height:1.6}
+  .cw-hint code{font-family:var(--mono);font-size:.78rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)}
+  /* Scrabble Helper */
+  .sb-rack-wrap{position:relative;display:flex;align-items:center;gap:8px;margin-bottom:.75rem}
+  .sb-rack-input{flex:1;font-family:var(--mono);font-size:1.5rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;background:var(--surface);color:var(--text);border:2px solid var(--border);border-radius:var(--radius);padding:.6rem 1rem;outline:none;transition:border-color .15s,box-shadow .15s}
+  .sb-rack-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+  .sb-rack-input::placeholder{font-size:1rem;letter-spacing:.04em;font-weight:400;color:var(--muted)}
+  .sb-rack-badge{font-size:.75rem;background:var(--pill-bg);color:var(--muted);padding:3px 10px;border-radius:99px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+  .sb-tile{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:#f5dfa0;border:2px solid #c8a84b;border-radius:6px;font-size:1.1rem;font-weight:700;font-family:var(--mono);color:#3d2e00;position:relative;user-select:none;flex-shrink:0}
+  .sb-tile .sb-val{position:absolute;bottom:2px;right:4px;font-size:.5rem;font-weight:600;color:#7a6020;line-height:1}
+  .sb-tile.blank{background:#f0efe9;border-color:var(--border);color:var(--muted)}
+  @media(prefers-color-scheme:dark){
+    .sb-tile{background:#5a4a1a;border-color:#8a7030;color:#ffe8a0}
+    .sb-tile .sb-val{color:#c8a84b}
+    .sb-tile.blank{background:var(--pill-bg);border-color:var(--border);color:var(--muted)}
+  }
+  .sb-rack-preview{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.875rem;min-height:52px;align-items:center}
+  .sb-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.875rem}
+  @media(max-width:480px){.sb-filters{grid-template-columns:1fr}}
+  .sb-field label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.35rem}
+  .sb-field input{width:100%;font-family:var(--mono);font-size:.875rem;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;outline:none;transition:border-color .15s}
+  .sb-field input:focus{border-color:var(--accent)}
+  .sb-sort-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.875rem}
+  .sb-sort-label{font-size:.75rem;color:var(--muted);font-weight:500}
+  .sb-sort-btn{font-size:.75rem;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted);font-family:var(--font);transition:background .1s,color .1s,border-color .1s}
+  .sb-sort-btn:hover{background:var(--pill-bg);color:var(--text)}
+  .sb-sort-btn.active{color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+  .sb-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+  .sb-source-row{font-size:.75rem;color:var(--muted);margin-bottom:.875rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sb-status{font-size:.8125rem;color:var(--muted);min-height:1.2em;margin-bottom:.5rem;text-align:center}
+  .sb-count{font-size:.8125rem;color:var(--muted);margin-bottom:.75rem;text-align:center}
+  .sb-count strong{color:var(--text)}
+  .sb-results{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .sb-word-tile{background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:5px 14px;font-size:.9rem;font-family:var(--mono);color:var(--text);line-height:1.4;cursor:pointer;user-select:none;transition:background .1s,border-color .1s;position:relative;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+  .sb-word-tile:hover{background:var(--surface);border-color:var(--accent)}
+  .sb-word-tile.copied{border-color:#16a34a;background:var(--surface)}
+  .sb-word-tile.copied::after{content:'\2713';position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:.7rem;color:#16a34a}
+  .sb-score-badge{font-size:.7rem;font-weight:700;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;line-height:1.4;flex-shrink:0}
+  .sb-score-high{color:#b45309;border-color:#f59e0b;background:color-mix(in srgb,#f59e0b 10%,transparent)}
+  .sb-hint{font-size:.78rem;color:var(--muted);background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .875rem;line-height:1.6;margin-bottom:.75rem}
+  .sb-hint code{font-family:var(--mono);font-size:.78rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)}
+
+  /* Scrabble Board */
+  .sb-board-toggle-btn{font-family:var(--font);font-size:.8125rem;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 16px;cursor:pointer;color:var(--text);transition:background .1s,border-color .1s}
+  .sb-board-toggle-btn:hover{background:var(--pill-bg);border-color:var(--accent)}
+  .sb-board-toggle-btn.active{background:color-mix(in srgb,var(--accent) 12%,transparent);border-color:var(--accent);color:var(--accent)}
+  #sbBoardPanel{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem}
+  .sb-board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px}
+  .sb-board-title{font-size:.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .sb-board-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .sb-board-btn{font-family:var(--font);font-size:.75rem;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted);transition:background .1s,color .1s}
+  .sb-board-btn:hover{background:var(--pill-bg);color:var(--text)}
+  .sb-board-btn.active{color:var(--accent);border-color:var(--accent)}
+  .sb-board-hint{font-size:.75rem;color:var(--muted);margin-bottom:.75rem;line-height:1.6;background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .875rem}
+  .sb-board-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:.75rem}
+  .sb-board-grid{display:inline-grid;grid-template-columns:repeat(15,1fr);gap:2px;background:var(--border);border:2px solid var(--border);border-radius:6px;padding:2px;min-width:0}
+  .sb-board-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:.65rem;font-weight:700;text-align:center;cursor:pointer;transition:opacity .1s,box-shadow .1s;position:relative;user-select:none;line-height:1.1}
+  .sb-board-cell:hover{opacity:.82;box-shadow:inset 0 0 0 2px var(--accent)}
+  .sb-board-cell.selected{box-shadow:inset 0 0 0 2px var(--accent)!important;opacity:1}
+  /* Premium square colours */
+  .sb-cell-tws{background:#e63946;color:#fff}
+  .sb-cell-dws{background:#f4a261;color:#fff}
+  .sb-cell-tls{background:#457b9d;color:#fff}
+  .sb-cell-dls{background:#a8dadc;color:#1a1a18}
+  .sb-cell-star{background:#f4a261;color:#fff}
+  .sb-cell-normal{background:var(--pill-bg);color:var(--muted)}
+  /* Placed tile */
+  .sb-board-cell.has-tile{cursor:default}
+  .sb-board-cell.has-tile:hover{opacity:1;box-shadow:none}
+  .sb-board-tile{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5dfa0;border:2px solid #c8a84b;border-radius:3px;font-size:.9rem;font-weight:700;font-family:var(--mono);color:#3d2e00;position:relative}
+  .sb-board-tile .sb-val{position:absolute;bottom:1px;right:3px;font-size:.45rem;font-weight:600;color:#7a6020;line-height:1}
+  .sb-board-tile.blank-tile{background:#f0efe9;border-color:var(--border);color:var(--muted)}
+  @media(prefers-color-scheme:dark){
+    .sb-board-tile{background:#5a4a1a;border-color:#8a7030;color:#ffe8a0}
+    .sb-board-tile .sb-val{color:#c8a84b}
+    .sb-board-tile.blank-tile{background:var(--pill-bg);border-color:var(--border);color:var(--muted)}
+  }
+  .sb-place-panel{
+    background:color-mix(in srgb,var(--accent) 9%,var(--surface));
+    border:2px solid var(--accent);
+    border-radius:10px;
+    padding:.875rem 1rem;
+    margin-bottom:.75rem;
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 12%,transparent);
+    animation:sbPlacePulse 1.8s ease-in-out infinite;
+    position:relative;
+  }
+  .sb-place-panel::before{
+    content:'▶ PLACING';
+    position:absolute;top:-10px;left:12px;
+    font-size:.6rem;font-weight:700;letter-spacing:.1em;
+    background:var(--accent);color:#fff;
+    border-radius:4px;padding:1px 8px;line-height:1.6;
+  }
+  @keyframes sbPlacePulse{
+    0%,100%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent)}
+    50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 5%,transparent)}
+  }
+  .sb-place-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.5rem}
+  .sb-place-label{font-size:.75rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .sb-place-word{font-size:1rem;font-family:var(--mono);font-weight:800;color:var(--text);letter-spacing:.12em;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 10px}
+  .sb-dir-btn{font-size:.75rem;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted);font-family:var(--font);transition:background .1s,color .1s,border-color .1s}
+  .sb-dir-btn.active{color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+  .sb-place-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .sb-score-total{font-size:.8125rem;color:var(--muted);margin-bottom:.5rem}
+  .sb-score-total strong{color:var(--text)}
+  @media(max-width:600px){.sb-board-cell{width:22px;height:22px;font-size:.45rem}.sb-board-tile{font-size:.65rem}.sb-board-tile .sb-val{display:none}}
+
+  /* Letter input popover */
+  .sb-letter-popover{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:.75rem;display:none;flex-direction:column;align-items:center;gap:.5rem;min-width:160px}
+  .sb-letter-popover.open{display:flex}
+  .sb-letter-popover-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .sb-letter-popover-coord{font-size:.7rem;color:var(--muted);margin-top:-.25rem}
+  .sb-letter-input{width:52px;height:52px;border:2px solid var(--accent);border-radius:8px;font-size:1.5rem;font-weight:700;text-align:center;text-transform:uppercase;background:var(--surface);color:var(--text);outline:none;font-family:var(--mono)}
+  .sb-letter-popover-btns{display:flex;gap:6px}
+  .sb-letter-popover-btn{font-family:var(--font);font-size:.75rem;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--text);transition:background .1s}
+  .sb-letter-popover-btn:hover{background:var(--pill-bg)}
+  .sb-letter-popover-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .sb-letter-popover-btn.primary:hover{opacity:.88}
+  .sb-letter-popover-btn.danger{color:#dc2626;border-color:#dc2626}
+  .sb-letter-popover-btn.danger:hover{background:color-mix(in srgb,#dc2626 10%,transparent)}
+  .sb-letter-prem{font-size:.7rem;color:var(--muted);text-align:center}
+
+  /* Score preview on word tiles */
+  .sb-word-tile .sb-board-score{font-size:.68rem;font-weight:700;color:#16a34a;background:color-mix(in srgb,#16a34a 10%,transparent);border:1px solid color-mix(in srgb,#16a34a 30%,transparent);border-radius:4px;padding:1px 5px;line-height:1.4;flex-shrink:0;display:none}
+  .sb-word-tile.board-score-ready .sb-board-score{display:inline}
+
+  /* Dict card buttons */
+  #sbBtn_CSW24:hover,#sbBtn_NWL2023:hover,#sbBtn_SOWPODS:hover{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+
+  /* Flip button in placement panel */
+  .sb-flip-btn{font-family:var(--font);font-size:.75rem;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted);transition:background .1s,color .1s}
+  .sb-flip-btn:hover{background:var(--pill-bg);color:var(--text)}
 </style>
 </head>
 <body>
@@ -167,17 +326,16 @@
     <button class="secret-btn" onclick="loadPreset('English&#x2122;','https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/words.txt')">English&#x2122;</button>
   </div>
 
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem;gap:1rem;flex-wrap:wrap">
     <h1 style="margin-bottom:0">Word Search</h1>
-    <div class="theme-toggle" onclick="toggleTeaMode()" title="Switch between Tea Mode and Wordle Mode">
-      <div class="theme-toggle-track tea" id="teaTrack">
-        <div class="theme-toggle-knob"></div>
-      </div>
-      <span class="theme-toggle-emoji" id="teaEmoji">🍵</span>
-      <span class="theme-toggle-label" id="teaLabel">Tea Mode</span>
+    <div class="app-mode-toggle" role="group" aria-label="App mode">
+      <button class="app-mode-btn active" id="appModeTea" onclick="setAppMode('tea')" title="Tea Mode — search your word list">🍵 Tea</button>
+      <button class="app-mode-btn" id="appModeWordle" onclick="setAppMode('wordle')" title="Wordle Solver">🟩 Wordle</button>
+      <button class="app-mode-btn" id="appModeCrossword" onclick="setAppMode('crossword')" title="Crossword Solver">⬛ Crossword</button>
+      <button class="app-mode-btn" id="appModeScrabble" onclick="setAppMode('scrabble')" title="Scrabble Helper">🔠 Scrabble</button>
     </div>
   </div>
-  <p class="subtitle">Type anything to instantly find matching words from your list.</p>
+  <p class="subtitle" id="appSubtitle">Type anything to instantly find matching words from your list.</p>
 
   <div id="teaSection">
   <div class="section">
@@ -185,6 +343,7 @@
       <span class="section-title">Your word list</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="word-count-badge" id="wordCountBadge">0 words</span>
+        <button class="toggle-btn" onclick="openModal('tea')" style="font-size:.75rem;padding:3px 10px">&#x2139;&#xFE0F; How to use</button>
         <button class="toggle-btn" id="toggleBtn" onclick="toggleList()">Hide</button>
       </div>
     </div>
@@ -221,7 +380,10 @@ together"></textarea>
     <div class="section">
       <div class="section-header">
         <span class="section-title">Wordle Solver</span>
-        <span class="word-count-badge" id="wordleDictBadge">loading…</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="word-count-badge" id="wordleDictBadge">loading…</span>
+          <button class="toggle-btn" onclick="openModal('wordle')" style="font-size:.75rem;padding:3px 10px">&#x2139;&#xFE0F; How to use</button>
+        </div>
       </div>
       <p style="font-size:.8125rem;color:var(--muted);margin-bottom:1rem">Enter your guesses below. Click each letter to cycle its color: <strong style="color:#6b7280">grey</strong> = not in word, <strong style="color:#ca8a04">yellow</strong> = wrong position, <strong style="color:#16a34a">green</strong> = correct position.</p>
 
@@ -245,8 +407,182 @@ together"></textarea>
     </div>
   </div>
 
-  <div id="teaModeSection">
-  <div class="section">
+  <!-- Crossword Solver Section -->
+  <div id="crosswordSection" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Crossword Solver</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="word-count-badge" id="cwDictBadge">no dict</span>
+          <button class="toggle-btn" onclick="openModal('crossword')" title="How to use the crossword solver" style="font-size:.75rem;padding:3px 10px">&#x2139;&#xFE0F; How to use</button>
+        </div>
+      </div>
+
+      <div class="cw-hint" style="margin-bottom:.875rem">
+        <span style="margin-right:.25rem">Use letters for known positions,</span><code>_</code><span style="margin:0 .25rem">or</span><code>?</code><span style="margin-right:.5rem">for unknowns.</span>
+        <span style="display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:.25rem;align-items:center">
+          <span style="font-size:.7rem;color:var(--muted);font-weight:500">e.g.</span>
+          <code>C_O_S_W_R_</code>
+          <code>?AT</code>
+          <code>__TION</code>
+        </span>
+      </div>
+
+      <div class="cw-pattern-wrap">
+        <input type="text" id="cwPattern" class="cw-pattern-input" placeholder="e.g.  C ? O ? S ?" autocomplete="off" spellcheck="false" oninput="cwOnInput()" onkeydown="if(event.key==='Enter')solveCrossword()" />
+        <span class="cw-len-badge" id="cwLenBadge">&mdash; letters</span>
+      </div>
+
+      <div class="cw-fields">
+        <div class="cw-field">
+          <label for="cwContains">Contains letters</label>
+          <input type="text" id="cwContains" placeholder="e.g.  A, T, R" autocomplete="off" spellcheck="false" oninput="solveCrossword()" />
+        </div>
+        <div class="cw-field">
+          <label for="cwExcludes">Excludes letters</label>
+          <input type="text" id="cwExcludes" placeholder="e.g.  Z, Q, X" autocomplete="off" spellcheck="false" oninput="solveCrossword()" />
+        </div>
+      </div>
+
+      <div class="cw-actions">
+        <button class="pick-btn" onclick="resetCrossword()">&#x21BA; Reset</button>
+      </div>
+
+      <div class="cw-source-row">
+        <span id="cwSourceLabel">Source: none loaded</span>
+        <button class="toggle-btn" onclick="loadCwDict()" id="cwLoadBtn" style="font-size:.75rem;padding:3px 10px">&#x1F4D6; Load Dictionary</button>
+      </div>
+
+      <div class="cw-status" id="cwStatus"></div>
+      <div class="cw-count" id="cwCount" style="display:none"></div>
+      <div class="cw-results" id="cwResults"></div>
+    </div>
+  </div>
+
+  <!-- Scrabble Helper Section -->
+  <div id="scrabbleSection" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Scrabble Helper</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="word-count-badge" id="sbDictBadge">no dict</span>
+          <button class="toggle-btn" onclick="openModal('scrabble')" title="How to use the Scrabble Helper" style="font-size:.75rem;padding:3px 10px">&#x2139;&#xFE0F; How to use</button>
+        </div>
+      </div>
+
+      <div class="sb-hint">
+        Enter your rack letters (up to 7). Use <code>?</code> for a blank tile. Results are scored and sorted by points.
+      </div>
+
+      <div style="margin-bottom:.875rem">
+        <div style="font-size:.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Load Dictionary</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="sbBtn_CSW24" onclick="loadSbPreset('CSW24')" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-align:left;font-family:var(--font);flex:1;min-width:120px">
+            <span style="font-size:1.25rem;line-height:1;flex-shrink:0">📗</span>
+            <span style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:.8125rem;font-weight:600;color:var(--text);line-height:1.2">CSW24</span>
+              <span style="font-size:.68rem;color:var(--muted);line-height:1.2">International</span>
+            </span>
+          </button>
+          <button id="sbBtn_NWL2023" onclick="loadSbPreset('NWL2023')" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-align:left;font-family:var(--font);flex:1;min-width:120px">
+            <span style="font-size:1.25rem;line-height:1;flex-shrink:0">📘</span>
+            <span style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:.8125rem;font-weight:600;color:var(--text);line-height:1.2">NWL2023</span>
+              <span style="font-size:.68rem;color:var(--muted);line-height:1.2">North America</span>
+            </span>
+          </button>
+          <button id="sbBtn_SOWPODS" onclick="loadSbPreset('SOWPODS')" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-align:left;font-family:var(--font);flex:1;min-width:120px">
+            <span style="font-size:1.25rem;line-height:1;flex-shrink:0">📙</span>
+            <span style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:.8125rem;font-weight:600;color:var(--text);line-height:1.2">SOWPODS</span>
+              <span style="font-size:.68rem;color:var(--muted);line-height:1.2">UK / Classic</span>
+            </span>
+          </button>
+        </div>
+        <div id="sbSourceLabel" style="font-size:.75rem;color:var(--muted);margin-top:.4rem"></div>
+      </div>
+
+      <div class="sb-rack-wrap">
+        <input type="text" id="sbRack" class="sb-rack-input" maxlength="7" placeholder="e.g.  A E I R S T ?" autocomplete="off" spellcheck="false" oninput="sbOnInput()" />
+        <span class="sb-rack-badge" id="sbRackBadge">0 / 7</span>
+      </div>
+
+      <div class="sb-rack-preview" id="sbRackPreview"></div>
+
+      <div class="sb-filters">
+        <div class="sb-field">
+          <label for="sbMustUse">Must use letters</label>
+          <input type="text" id="sbMustUse" placeholder="e.g.  R, E" autocomplete="off" spellcheck="false" oninput="solveScrabble()" />
+        </div>
+        <div class="sb-field">
+          <label for="sbLength">Word length</label>
+          <input type="text" id="sbLength" placeholder="e.g.  5  or  4-7" autocomplete="off" spellcheck="false" oninput="solveScrabble()" />
+        </div>
+      </div>
+
+      <div class="sb-sort-row">
+        <span class="sb-sort-label">Sort by:</span>
+        <button class="sb-sort-btn active" id="sbSortScore" onclick="setSbSort('score')">⭐ Score</button>
+        <button class="sb-sort-btn" id="sbSortLen" onclick="setSbSort('length')">📏 Length</button>
+        <button class="sb-sort-btn" id="sbSortAlpha" onclick="setSbSort('alpha')">🔤 A–Z</button>
+      </div>
+
+      <div class="sb-actions">
+        <button class="pick-btn" onclick="resetScrabble()">↺ Reset</button>
+        <button class="pick-btn sb-board-toggle-btn" id="sbShowBoardBtn" onclick="toggleScrabbleBoard()">🎲 Show Board</button>
+      </div>
+
+      <!-- Scrabble Board Panel -->
+      <div id="sbBoardPanel" style="display:none">
+        <div class="sb-board-header">
+          <span class="sb-board-title">Interactive Board</span>
+          <div class="sb-board-controls">
+            <button class="toggle-btn" id="sbAutoDeductBtn" onclick="toggleSbAutoDeduct()" title="When on, letters used by a placed word are removed from your rack automatically" style="font-size:.8125rem;padding:5px 18px;font-weight:600">🔡 Auto-Deduct: Off</button>
+            <button class="sb-board-btn" onclick="clearSbBoard()" title="Clear all tiles from the board" style="color:#dc2626;border-color:#dc2626;font-weight:600;padding:5px 18px;font-size:.8125rem" onmouseover="this.style.background='color-mix(in srgb,#dc2626 12%,transparent)'" onmouseout="this.style.background='none'">🗑️ Clear Board</button>
+            <span class="sb-score-total">Total score: <strong id="sbTotalScore">0</strong> pts</span>
+          </div>
+        </div>
+        <div class="sb-board-hint">
+          <strong>How to place words:</strong> Click a word in the results below → it appears in the placement panel. Choose direction, then click a cell on the board to place it. Click a placed tile to remove that word.
+        </div>
+
+        <!-- Word placement control panel (shows when a word is selected) -->
+        <div class="sb-place-panel" id="sbPlacePanel" style="display:none">
+          <div class="sb-place-row">
+            <span class="sb-place-label">Placing:</span>
+            <span class="sb-place-word" id="sbPlaceWord">—</span>
+          </div>
+          <div class="sb-place-row">
+            <button class="sb-dir-btn active" id="sbDirH" onclick="setSbDir('H')">→ Across</button>
+            <button class="sb-dir-btn" id="sbDirV" onclick="setSbDir('V')">↓ Down</button>
+            <button class="sb-flip-btn" onclick="flipSbDir()" title="Flip direction">⇄ Flip</button>
+            <span style="margin-left:auto;font-size:.8125rem;color:var(--muted)"><span class="sb-place-label" style="font-size:.7rem">Est. score:</span> <span id="sbPlaceScoreHint">hover a cell</span></span>
+          </div>
+          <div class="sb-place-actions" style="margin-top:.25rem">
+            <button class="sb-board-btn" onclick="cancelSbPlace()">✕ Cancel</button>
+          </div>
+          <div style="font-size:.75rem;color:var(--accent);font-weight:500;margin-top:.5rem;display:flex;align-items:center;gap:5px" id="sbPlaceHint">👆 Click any empty cell on the board to place the word.</div>
+        </div>
+
+        <div class="sb-board-wrap">
+          <div class="sb-board-grid" id="sbBoardGrid"></div>
+        </div>
+
+        <!-- Board legend -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:.7rem;color:var(--muted);margin-top:.25rem">
+          <span><span style="display:inline-block;width:12px;height:12px;background:#e63946;border-radius:2px;vertical-align:middle;margin-right:3px"></span>TWS</span>
+          <span><span style="display:inline-block;width:12px;height:12px;background:#f4a261;border-radius:2px;vertical-align:middle;margin-right:3px"></span>DWS</span>
+          <span><span style="display:inline-block;width:12px;height:12px;background:#457b9d;border-radius:2px;vertical-align:middle;margin-right:3px"></span>TLS</span>
+          <span><span style="display:inline-block;width:12px;height:12px;background:#a8dadc;border-radius:2px;vertical-align:middle;margin-right:3px"></span>DLS</span>
+        </div>
+      </div>
+
+      <div class="sb-status" id="sbStatus"></div>
+      <div class="sb-count" id="sbCount" style="display:none"></div>
+      <div class="sb-results" id="sbResults"></div>
+    </div>
+  </div>
+  <div class="section" id="teaModeSection">
     <div style="margin-bottom:.75rem">
       <div class="mode-toggle" style="margin-bottom:.5rem">
         <button class="mode-btn active" id="modeSearch" onclick="setMode('search')"><span id="modeLabelSearch">&#x1F5A4; Black Tea</span></button>
@@ -319,6 +655,8 @@ together"></textarea>
     <div style="display:flex;gap:4px;background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:1.1rem">
       <button id="helpTeaBtn" onclick="setHelpMode('tea')" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--text);font-weight:500;cursor:pointer;transition:background .15s,color .15s">🍵 Tea Mode</button>
       <button id="helpWordleBtn" onclick="setHelpMode('wordle')" style="flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);cursor:pointer;transition:background .15s,color .15s">🟩 Wordle Solver</button>
+      <button id="helpCrosswordBtn" onclick="setHelpMode('crossword')" style="flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);cursor:pointer;transition:background .15s,color .15s">⬛ Crossword</button>
+      <button id="helpScrabbleBtn" onclick="setHelpMode('scrabble')" style="flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);cursor:pointer;transition:background .15s,color .15s">🔠 Scrabble</button>
     </div>
 
     <!-- Tea Mode help -->
@@ -380,6 +718,62 @@ together"></textarea>
       </div>
     </div>
 
+    <!-- Crossword Solver help -->
+    <div id="helpCrosswordContent" style="display:none">
+      <div class="modal-section">
+        <div class="modal-label">Pattern input</div>
+        <div class="modal-row"><span class="modal-icon">🔡</span><span>Type <strong>known letters</strong> in their exact positions. Use <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">_</code> or <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?</code> for unknown letters.</span></div>
+        <div class="modal-row"><span class="modal-icon">✏️</span><span><code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">C_O_S_W_R_</code> matches CROSSWORD.</span></div>
+        <div class="modal-row"><span class="modal-icon">✏️</span><span><code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">__TION</code> matches any 6-letter word ending in TION.</span></div>
+        <div class="modal-row"><span class="modal-icon">✏️</span><span><code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?AT</code> matches BAT, CAT, HAT, MAT, RAT…</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Letter constraints</div>
+        <div class="modal-row"><span class="modal-icon">✅</span><span><strong>Contains letters</strong> — the word must include all letters you list (comma or space separated). E.g. <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">A, R</code></span></div>
+        <div class="modal-row"><span class="modal-icon">❌</span><span><strong>Excludes letters</strong> — the word must <em>not</em> contain any of the letters you list. E.g. <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">Z, Q</code></span></div>
+        <div class="modal-row"><span class="modal-icon">💡</span><span>Combine a pattern <em>and</em> letter constraints together for very precise results.</span></div>
+      </div>
+    </div>
+
+    <!-- Scrabble Helper help -->
+    <div id="helpScrabbleContent" style="display:none">
+      <div class="modal-section">
+        <div class="modal-label">Basics</div>
+        <div class="modal-row"><span class="modal-icon">📖</span><span>Before searching, <strong>load a dictionary</strong> using the buttons at the top of the Scrabble section — <strong>CSW24</strong>, <strong>NWL2023</strong>, or <strong>SOWPODS</strong>.</span></div>
+        <div class="modal-row"><span class="modal-icon">🔠</span><span>Enter up to <strong>7 rack letters</strong> and the helper finds every valid word you can make from them, scored using official Scrabble letter values.</span></div>
+        <div class="modal-row"><span class="modal-icon">❓</span><span>Use <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?</code> for a <strong>blank tile</strong> — it matches any letter (scores 0 points).</span></div>
+        <div class="modal-row"><span class="modal-icon">🖱️</span><span>Click any result word to <strong>copy it</strong> to your clipboard (when the board is hidden) or to <strong>select it for placement</strong> (when the board is visible).</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Filters</div>
+        <div class="modal-row"><span class="modal-icon">✅</span><span><strong>Must use letters</strong> — only show words that use all the letters you list (comma or space separated).</span></div>
+        <div class="modal-row"><span class="modal-icon">📏</span><span><strong>Word length</strong> — filter by exact length (e.g. <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">5</code>) or a range (e.g. <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">4-7</code>).</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Sorting</div>
+        <div class="modal-row"><span class="modal-icon">⭐</span><span><strong>Score</strong> — sorts highest-scoring words first (default).</span></div>
+        <div class="modal-row"><span class="modal-icon">📏</span><span><strong>Length</strong> — sorts longest words first.</span></div>
+        <div class="modal-row"><span class="modal-icon">🔤</span><span><strong>A–Z</strong> — sorts alphabetically.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">🎲 Interactive Board</div>
+        <div class="modal-row"><span class="modal-icon">🎲</span><span>Click <strong>Show Board</strong> to open the 15×15 Scrabble board with all premium squares (TWS, DWS, TLS, DLS) in their correct positions.</span></div>
+        <div class="modal-row"><span class="modal-icon">🖱️</span><span><strong>Place words from results:</strong> With the board open, click any result word to select it. A highlighted <strong>Placing</strong> panel appears at the top — choose <strong>→ Across</strong> or <strong>↓ Down</strong>, then click any board cell to place it. Hover cells to preview the score first.</span></div>
+        <div class="modal-row"><span class="modal-icon">⇄</span><span><strong>Flip direction:</strong> Click the <strong>⇄ Flip</strong> button (or click the direction buttons) at any time before placing to instantly switch between Across and Down without re-selecting the word.</span></div>
+        <div class="modal-row"><span class="modal-icon">⌨️</span><span><strong>Type individual letters:</strong> Click any <em>empty</em> cell on the board to open a letter input. Type a letter and click <strong>Place</strong> to set it manually — useful for typing in opponent tiles or board state. Click a manually-placed tile to edit or remove it.</span></div>
+        <div class="modal-row"><span class="modal-icon">💯</span><span><strong>Score preview:</strong> Hover over a board cell while a word is selected to see the estimated score shown in the placement panel. Each word tile in the results also shows a <span style="color:#16a34a;font-weight:600">green score badge</span> with its potential points once you hover a valid placement cell.</span></div>
+        <div class="modal-row"><span class="modal-icon">🗑️</span><span><strong>Remove tiles:</strong> Click any placed word-tile to remove that entire word from the board. Click a manually-placed tile to edit or delete just that letter.</span></div>
+        <div class="modal-row"><span class="modal-icon">🧮</span><span>The <strong>Total score</strong> counter in the board header adds up the scores of all placed words, accounting for all premium squares.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">🔡 Auto-Deduct</div>
+        <div class="modal-row"><span class="modal-icon">🔡</span><span>Toggle <strong>Auto-Deduct</strong> in the board header to automatically remove used letters from your rack whenever you place a word on the board.</span></div>
+        <div class="modal-row"><span class="modal-icon">✅</span><span><strong>Auto-Deduct: On</strong> — after placing a word, those letters are instantly deducted from your rack and the results refresh to show only words you can still play with your remaining tiles.</span></div>
+        <div class="modal-row"><span class="modal-icon">↩️</span><span><strong>Removing a placed word</strong> — if you click a word-tile to remove it from the board while Auto-Deduct is on, those letters are automatically <em>returned</em> to your rack.</span></div>
+        <div class="modal-row"><span class="modal-icon">💡</span><span>Turn Auto-Deduct <strong>off</strong> if you want to keep your full rack visible regardless of what's already placed — useful when planning multiple turns ahead.</span></div>
+      </div>
+    </div>
+
     <hr class="modal-divider">
     <!-- About — always visible -->
     <div class="modal-section">
@@ -392,12 +786,6 @@ together"></textarea>
       <button class="modal-btn" onclick="closeModal()">Got it</button>
     </div>
   </div>
-</div>
-
-<div style="position:absolute;bottom:-2.2rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.5rem;white-space:nowrap">
-  <p style="font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none;letter-spacing:.03em">Crafted by Claude &amp; ChatGPT</p>
-  <span style="font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none">·</span>
-  <button onclick="openModal()" style="font-size:.65rem;color:var(--accent);opacity:.55;background:none;border:none;cursor:pointer;padding:0;font-family:var(--font);letter-spacing:.03em;transition:opacity .15s" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.55'">General Info</button>
 </div>
 
 <script>
@@ -903,7 +1291,7 @@ async function _fetchDict(url,label){
 }
 
 function loadDictionary(){ _fetchDict('https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/dictionary.txt','dictionary'); }
-function loadPreset(name,url){ _fetchDict(url,name); }
+function loadPreset(name,url){ if(appMode==='scrabble') loadSbPreset(name,url); else _fetchDict(url,name); }
 
 function resetWordList(){
   wordListEl.value=''; fileLoaded.style.display='none'; dropZone.style.display='block'; fileInput.value='';
@@ -913,60 +1301,80 @@ function resetWordList(){
   loadDictStatus.textContent=''; resetBtn.style.display='none';
 }
 
-// ─── Tea Mode toggle ──────────────────────────────────────────────────────────
-let teaMode = true;
-let _stashedWordList = null; // holds textarea content while in Wordle mode
-function toggleTeaMode(){
-  teaMode = !teaMode;
-  const track=$('teaTrack'), emoji=$('teaEmoji'), label=$('teaLabel');
-  if(teaMode){
-    track.className='theme-toggle-track tea';
-    emoji.textContent='🍵'; label.textContent='Tea Mode';
-    $('modeLabelSearch').innerHTML='&#x1F5A4; Black Tea';
-    $('modeLabelLongest').innerHTML='&#x2764;&#xFE0F; Red Tea';
-    $('modeLabelPick').innerHTML='&#x1F49B; Yellow Tea';
-    // Show tea UI first so the switch feels instant
-    $('teaSection').style.display='';
-    $('teaModeSection').style.display='';
-    $('wordleSection').style.display='none';
-    $('secretBtns').style.display='';
-    // Restore textarea content after the browser has painted, so there's no blocking layout cost
+// ─── App Mode (Tea / Wordle / Crossword) ─────────────────────────────────────
+let appMode = 'tea'; // 'tea' | 'wordle' | 'crossword'
+let _stashedWordList = null;
+
+const APP_MODE_SUBTITLES = {
+  tea:       'Type anything to instantly find matching words from your list.',
+  wordle:    'Enter your Wordle guesses to narrow down the remaining possibilities.',
+  crossword: 'Enter a letter pattern to find matching crossword answers.',
+  scrabble:  'Enter your rack letters to find every word you can play and their scores.'
+};
+
+function setAppMode(mode){
+  appMode = mode;
+  ['Tea','Wordle','Crossword','Scrabble'].forEach(m=>{
+    $('appMode'+m).classList.toggle('active', m.toLowerCase()===mode);
+  });
+  $('appSubtitle').textContent = APP_MODE_SUBTITLES[mode];
+
+  const isTea=mode==='tea', isWordle=mode==='wordle', isCW=mode==='crossword', isSB=mode==='scrabble';
+  $('teaSection').style.display        = isTea ? '' : 'none';
+  $('teaModeSection').style.display    = isTea ? '' : 'none';
+  $('secretBtns').style.display        = isTea ? '' : 'none';
+  $('wordleSection').style.display     = isWordle ? '' : 'none';
+  $('crosswordSection').style.display  = isCW ? '' : 'none';
+  $('scrabbleSection').style.display   = isSB ? '' : 'none';
+
+  if(isTea){
+    localStorage.setItem('wsMode','tea');
     if(_stashedWordList !== null){
       const toRestore = _stashedWordList;
       _stashedWordList = null;
-      requestAnimationFrame(()=>{ setTimeout(()=>{ wordListEl.value = toRestore; }, 0); });
+      requestAnimationFrame(()=>{ setTimeout(()=>{ wordListEl.value = toRestore; rebuildCache(); rerender(); }, 0); });
     }
   } else {
-    track.className='theme-toggle-track normal';
-    emoji.textContent='🟩'; label.textContent='Wordle Mode';
-    // Stash and clear the textarea so the DOM isn't holding a huge string while hidden
-    _stashedWordList = wordListEl.value;
-    wordListEl.value = '';
-    // Hide tea UI, show wordle UI
-    $('teaSection').style.display='none';
-    $('teaModeSection').style.display='none';
-    $('wordleSection').style.display='';
-    $('secretBtns').style.display='none';
-    // Load wordle dictionary if not yet loaded
-    if(!wordleWords.length && !wordleLoading) loadWordleDict();
-    // Add initial row if none exist
-    if(!$('wordleGuessRows').children.length) addWordleRow();
+    localStorage.setItem('wsMode', mode);
+    if(_stashedWordList === null){ _stashedWordList = wordListEl.value; wordListEl.value = ''; }
+    if(isWordle){
+      if(!wordleWords.length && !wordleLoading) loadWordleDict();
+      if(!$('wordleGuessRows').children.length) addWordleRow();
+    }
+    if(isCW){
+      if(!cwWords.length && !cwLoading) loadCwDict();
+      setTimeout(()=>$('cwPattern').focus(), 50);
+    }
+    if(isSB){
+      setTimeout(()=>$('sbRack').focus(), 50);
+    }
   }
 }
+
+// Legacy alias
+function toggleTeaMode(){ setAppMode(appMode==='tea'?'wordle':'tea'); }
 
 // ─── Help modal ──────────────────────────────────────────────────────────────
 const HELP_KEY = 'wsHelpSeen';
 function setHelpMode(mode){
   const isTea = mode === 'tea';
-  $('helpTeaContent').style.display    = isTea ? '' : 'none';
-  $('helpWordleContent').style.display = isTea ? 'none' : '';
+  const isWordle = mode === 'wordle';
+  const isCW = mode === 'crossword';
+  const isSB = mode === 'scrabble';
+  $('helpTeaContent').style.display        = isTea   ? '' : 'none';
+  $('helpWordleContent').style.display     = isWordle ? '' : 'none';
+  $('helpCrosswordContent').style.display  = isCW     ? '' : 'none';
+  $('helpScrabbleContent').style.display   = isSB     ? '' : 'none';
   const activeStyle   = 'flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--text);font-weight:500;cursor:pointer;transition:background .15s,color .15s';
   const inactiveStyle = 'flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);font-weight:normal;cursor:pointer;transition:background .15s,color .15s';
-  $('helpTeaBtn').style.cssText    = isTea  ? activeStyle : inactiveStyle;
-  $('helpWordleBtn').style.cssText = !isTea ? activeStyle : inactiveStyle;
+  $('helpTeaBtn').style.cssText        = isTea   ? activeStyle : inactiveStyle;
+  $('helpWordleBtn').style.cssText     = isWordle ? activeStyle : inactiveStyle;
+  $('helpCrosswordBtn').style.cssText  = isCW     ? activeStyle : inactiveStyle;
+  $('helpScrabbleBtn').style.cssText   = isSB     ? activeStyle : inactiveStyle;
 }
-function openModal(){
-  setHelpMode(teaMode ? 'tea' : 'wordle');
+function openModal(tab){
+  const defaultTab = tab || appMode || 'tea';
+  setHelpMode(defaultTab);
   $('helpModal').classList.add('open');
   document.addEventListener('keydown', _modalEsc);
 }
@@ -1217,6 +1625,799 @@ $('wordleResults').addEventListener('click', e=>{
 
 // Init wordle with one empty row ready — but only when entering wordle mode (lazy)
 // Don't load on page init; wait until mode is switched.
+
+// ─── Crossword Solver ─────────────────────────────────────────────────────────
+let cwWords = [];   // full word list for crossword
+let cwLoading = false;
+const CW_DICT_URL = 'https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/words.txt';
+
+async function loadCwDict(){
+  if(cwLoading) return;
+  cwLoading = true;
+  const badge = $('cwDictBadge');
+  const loadBtn = $('cwLoadBtn');
+  const src = $('cwSourceLabel');
+  badge.textContent = 'loading…';
+  if(loadBtn){ loadBtn.disabled=true; loadBtn.textContent='⏳ Loading…'; }
+  if(src) src.textContent = 'Loading dictionary…';
+  try{
+    const res = await fetch(CW_DICT_URL);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    cwWords = text.split('\n').map(w=>w.trim().replace(/\r$/,'')).map(w=>w.toLowerCase()).filter(w=>/^[a-z]+$/.test(w));
+    badge.textContent = cwWords.length.toLocaleString()+' words';
+    if(src) src.textContent = 'Source: English™ dictionary ('+cwWords.length.toLocaleString()+' words)';
+    if(loadBtn){ loadBtn.textContent='✓ Loaded'; loadBtn.style.color='#16a34a'; loadBtn.style.borderColor='#16a34a'; }
+    $('cwStatus').textContent = '';
+    cwLoading = false;
+  } catch(e){
+    cwLoading = false;
+    badge.textContent = 'failed';
+    if(src) src.textContent = 'Source: failed to load';
+    if(loadBtn){ loadBtn.disabled=false; loadBtn.textContent='📖 Retry'; }
+    $('cwStatus').textContent = '⚠️ Could not load dictionary. Check your connection and retry.';
+  }
+}
+
+function cwUseTeaList(){
+  const raw = _stashedWordList || wordListEl.value;
+  const words = raw.split(/[\n,\r ]+/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]+$/.test(w));
+  cwWords = words;
+  const badge = $('cwDictBadge');
+  const src = $('cwSourceLabel');
+  badge.textContent = words.length.toLocaleString()+' words';
+  if(src) src.textContent = 'Source: Tea Mode list ('+words.length.toLocaleString()+' words)';
+  $('cwStatus').textContent = '';
+  solveCrossword();
+}
+
+function cwOnInput(){
+  const raw = $('cwPattern').value;
+  // Count actual letter/wildcard slots (ignore spaces)
+  const cleaned = raw.replace(/\s/g,'');
+  const len = cleaned.length;
+  const badge = $('cwLenBadge');
+  badge.textContent = len > 0 ? len+' letter'+(len!==1?'s':'') : '— letters';
+  solveCrossword();
+}
+
+function buildCwRegex(pattern){
+  // Normalise: spaces stripped, _ and ? → wildcard
+  const cleaned = pattern.replace(/\s/g,'').toLowerCase();
+  if(!cleaned) return null;
+  const reStr = cleaned.split('').map(c=>(c==='_'||c==='?'||c==='.')?'[a-z]':c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('');
+  try{ return new RegExp('^'+reStr+'$'); } catch(e){ return null; }
+}
+
+function parseCwLetterList(str){
+  return str.replace(/[^a-zA-Z,\s]/g,'').split(/[,\s]+/).map(c=>c.trim().toLowerCase()).filter(c=>c.length===1);
+}
+
+function solveCrossword(){
+  const patternRaw = $('cwPattern').value;
+  const containsRaw = $('cwContains').value;
+  const excludesRaw = $('cwExcludes').value;
+
+  const statusEl = $('cwStatus');
+  const countEl  = $('cwCount');
+  const resultsEl = $('cwResults');
+
+  if(!cwWords.length){
+    statusEl.textContent = cwLoading ? '⏳ Dictionary loading…' : '📖 Load a dictionary above to start solving.';
+    countEl.style.display='none'; resultsEl.innerHTML=''; return;
+  }
+
+  const pattern = patternRaw.replace(/\s/g,'');
+  const regex = pattern ? buildCwRegex(pattern) : null;
+
+  if(pattern && !regex){
+    statusEl.textContent = '⚠️ Invalid pattern — use letters and _ or ? for unknowns.';
+    countEl.style.display='none'; resultsEl.innerHTML=''; return;
+  }
+
+  const mustHave = parseCwLetterList(containsRaw);
+  const mustNot  = parseCwLetterList(excludesRaw);
+
+  if(!regex && !mustHave.length && !mustNot.length){
+    statusEl.textContent = 'Enter a pattern or constraints above to find matches.';
+    countEl.style.display='none'; resultsEl.innerHTML=''; return;
+  }
+
+  let matches = cwWords;
+  if(regex)    matches = matches.filter(w=>regex.test(w));
+  if(mustHave.length) matches = matches.filter(w=>mustHave.every(l=>w.includes(l)));
+  if(mustNot.length)  matches = matches.filter(w=>mustNot.every(l=>!w.includes(l)));
+
+  statusEl.textContent = '';
+
+  if(!matches.length){
+    countEl.style.display='none';
+    resultsEl.innerHTML='<div class="empty-state" style="width:100%;text-align:center;padding:.5rem 0">🤔 No matches found. Try relaxing your constraints.</div>';
+    return;
+  }
+
+  countEl.style.display='';
+  countEl.innerHTML = '<strong>'+matches.length.toLocaleString()+'</strong> match'+(matches.length!==1?'es':'')+' found';
+
+  const show = matches.slice(0, 250);
+  const highlight = regex ? pattern : null;
+
+  resultsEl.innerHTML = show.map(w=>{
+    const display = w.toUpperCase();
+    let inner = display;
+    if(highlight){
+      // Highlight matched (known) positions
+      const cl = highlight.toLowerCase();
+      let h='';
+      for(let i=0;i<display.length;i++){
+        const pc = cl[i];
+        if(pc && pc!=='_' && pc!=='?' && pc!=='.') h+='<mark>'+display[i]+'</mark>';
+        else h+=display[i];
+      }
+      inner=h;
+    }
+    return '<div class="cw-tile" data-word="'+w+'">'+inner+'</div>';
+  }).join('') + (matches.length>250 ? '<div class="pill more-btn" style="pointer-events:none;cursor:default">+'+( matches.length-250)+' more</div>' : '');
+}
+
+function resetCrossword(){
+  $('cwPattern').value='';
+  $('cwContains').value='';
+  $('cwExcludes').value='';
+  $('cwLenBadge').textContent='— letters';
+  $('cwStatus').textContent='';
+  $('cwCount').style.display='none';
+  $('cwResults').innerHTML='';
+  $('cwPattern').focus();
+}
+
+// Click to copy crossword results
+$('cwResults').addEventListener('click', e=>{
+  const tile = e.target.closest('.cw-tile');
+  if(!tile) return;
+  const word = tile.dataset.word ? tile.dataset.word.toUpperCase() : tile.textContent.trim();
+  const finish = ()=>{ tile.classList.add('copied'); setTimeout(()=>tile.classList.remove('copied'),800); };
+  navigator.clipboard.writeText(word).then(finish).catch(()=>{ clipFallback(word); finish(); });
+});
+
+// ─── Restore last mode (must be after all functions are defined) ──────────────
+const _savedMode = localStorage.getItem('wsMode');
+if(_savedMode === 'wordle') setAppMode('wordle');
+else if(_savedMode === 'crossword') setAppMode('crossword');
+else if(_savedMode === 'scrabble') setAppMode('scrabble');
+
+// ─── Scrabble Helper ──────────────────────────────────────────────────────────
+const SB_SCORES = {a:1,b:3,c:3,d:2,e:1,f:4,g:2,h:4,i:1,j:8,k:5,l:1,m:3,n:1,o:1,p:3,q:10,r:1,s:1,t:1,u:1,v:4,w:4,x:8,y:4,z:10};
+
+let sbWords = [];
+let sbLoading = false;
+let sbSort = 'score'; // 'score' | 'length' | 'alpha'
+
+function sbLetterValue(ch){ return SB_SCORES[ch] || 0; }
+
+function sbWordScore(word){ let s=0; for(const c of word) s+=sbLetterValue(c); return s; }
+
+async function loadSbDict(){
+  if(sbLoading) return;
+  sbLoading = true;
+  const badge = $('sbDictBadge');
+  const src   = $('sbSourceLabel');
+  const loadBtn = $('sbLoadBtn');
+  badge.textContent = 'loading…';
+  if(src) src.textContent = 'Loading dictionary…';
+  if(loadBtn){ loadBtn.disabled=true; loadBtn.textContent='⏳ Loading…'; }
+  try{
+    const res = await fetch('https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/words.txt');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    sbWords = text.split('\n').map(w=>w.trim().replace(/\r$/,'')).map(w=>w.toLowerCase()).filter(w=>/^[a-z]{2,}$/.test(w));
+    badge.textContent = sbWords.length.toLocaleString()+' words';
+    if(src) src.textContent = 'Source: English™ dictionary ('+sbWords.length.toLocaleString()+' words)';
+    if(loadBtn){ loadBtn.textContent='✓ Loaded'; loadBtn.style.color='#16a34a'; loadBtn.style.borderColor='#16a34a'; }
+    $('sbStatus').textContent = '';
+    sbLoading = false;
+    solveScrabble();
+  } catch(e){
+    sbLoading = false;
+    badge.textContent = 'failed';
+    if(src) src.textContent = 'Source: failed to load';
+    if(loadBtn){ loadBtn.disabled=false; loadBtn.textContent='📖 Retry'; }
+    $('sbStatus').textContent = '⚠️ Could not load dictionary. Check your connection and retry.';
+  }
+}
+
+// Preset dict loader for Scrabble
+const SB_PRESETS = {
+  CSW24:   { emoji:'📗', label:'CSW24',   url:'https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/CSW24.txt' },
+  NWL2023: { emoji:'📘', label:'NWL2023', url:'https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/NWL2023.txt' },
+  SOWPODS: { emoji:'📙', label:'SOWPODS', url:'https://raw.githubusercontent.com/aitcfriatcsu-hub/Word-Lists/refs/heads/main/sowpods.txt' },
+};
+function _sbResetBtns(){
+  Object.entries(SB_PRESETS).forEach(([key,p])=>{
+    const btn = $('sbBtn_'+key);
+    if(btn){
+      btn.disabled=false;
+      btn.style.borderColor='';
+      btn.style.boxShadow='';
+      const nameEl = btn.querySelector('span span:first-child');
+      if(nameEl) nameEl.textContent = p.label;
+      const subEl = btn.querySelector('span span:last-child');
+      if(subEl) subEl.style.color='';
+    }
+  });
+}
+function loadSbPreset(name){
+  if(sbLoading) return;
+  const preset = SB_PRESETS[name];
+  if(!preset) return;
+  sbLoading = true;
+  _sbResetBtns();
+  const badge     = $('sbDictBadge');
+  const src       = $('sbSourceLabel');
+  const activeBtn = $('sbBtn_'+name);
+  badge.textContent = 'loading…';
+  if(src) src.textContent = 'Loading '+preset.label+'…';
+  if(activeBtn){
+    activeBtn.disabled=true;
+    const nameEl = activeBtn.querySelector('span span:first-child');
+    if(nameEl) nameEl.textContent='⏳ Loading…';
+  }
+  fetch(preset.url)
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(text=>{
+      sbWords = text.split('\n').map(w=>w.trim().replace(/\r$/,'').toLowerCase()).filter(w=>/^[a-z]{2,}$/.test(w));
+      badge.textContent = sbWords.length.toLocaleString()+' words';
+      if(src) src.textContent = 'Loaded: '+preset.label+' ('+sbWords.length.toLocaleString()+' words)';
+      if(activeBtn){
+        activeBtn.disabled=false;
+        activeBtn.style.borderColor='#16a34a';
+        activeBtn.style.boxShadow='0 0 0 3px color-mix(in srgb,#16a34a 15%,transparent)';
+        const nameEl = activeBtn.querySelector('span span:first-child');
+        if(nameEl) nameEl.textContent = preset.label+' ✓';
+        const subEl = activeBtn.querySelector('span span:last-child');
+        if(subEl) subEl.style.color='#16a34a';
+      }
+      $('sbStatus').textContent = '';
+      sbLoading = false;
+      solveScrabble();
+    }).catch(()=>{
+      sbLoading = false;
+      badge.textContent = 'failed';
+      if(src) src.textContent = 'Failed to load '+preset.label;
+      _sbResetBtns();
+      $('sbStatus').textContent = '⚠️ Could not load dictionary. Check your connection.';
+    });
+}
+
+function sbOnInput(){
+  const raw = $('sbRack').value.replace(/[^a-zA-Z?]/g,'');
+  $('sbRack').value = raw; // sanitise in place
+  const count = raw.length;
+  $('sbRackBadge').textContent = count+' / 7';
+  renderSbRackPreview(raw.toLowerCase());
+  solveScrabble();
+}
+
+function renderSbRackPreview(letters){
+  const el = $('sbRackPreview');
+  if(!letters){ el.innerHTML=''; return; }
+  el.innerHTML = letters.split('').map(ch=>{
+    const isBlank = ch==='?';
+    const val = isBlank ? 0 : sbLetterValue(ch);
+    return `<div class="sb-tile${isBlank?' blank':''}">${isBlank?'&nbsp;':ch.toUpperCase()}<span class="sb-val">${val}</span></div>`;
+  }).join('');
+}
+
+// Checks if word can be formed from rack (supports blanks)
+function sbCanForm(word, rackLetters, blanks){
+  const freq = {};
+  for(const c of rackLetters) freq[c]=(freq[c]||0)+1;
+  let blanksLeft = blanks;
+  for(const c of word){
+    if(freq[c] && freq[c]>0){ freq[c]--; }
+    else if(blanksLeft>0){ blanksLeft--; }
+    else return false;
+  }
+  return true;
+}
+
+// Compute score considering which letters were covered by blanks (blanks=0)
+function sbComputeScore(word, rackLetters, blanks){
+  const freq = {};
+  for(const c of rackLetters) freq[c]=(freq[c]||0)+1;
+  let blanksLeft = blanks;
+  let score = 0;
+  for(const c of word){
+    if(freq[c] && freq[c]>0){ freq[c]--; score+=sbLetterValue(c); }
+    else if(blanksLeft>0){ blanksLeft--; /* blank: 0 pts */ }
+  }
+  return score;
+}
+
+function parseSbLength(str){
+  str = str.trim();
+  if(!str) return null;
+  const range = str.match(/^(\d+)\s*[-–]\s*(\d+)$/);
+  if(range) return {min:parseInt(range[1]),max:parseInt(range[2])};
+  const exact = str.match(/^(\d+)$/);
+  if(exact) return {min:parseInt(exact[1]),max:parseInt(exact[1])};
+  return null;
+}
+
+function setSbSort(s){
+  sbSort = s;
+  ['Score','Len','Alpha'].forEach(k=>$('sbSort'+k).classList.remove('active'));
+  const idMap = { score:'Score', length:'Len', alpha:'Alpha' };
+  $('sbSort'+idMap[s]).classList.add('active');
+  solveScrabble();
+}
+
+function solveScrabble(){
+  const rackRaw = ($('sbRack').value||'').toLowerCase().replace(/[^a-z?]/g,'');
+  const mustRaw = $('sbMustUse').value;
+  const lenRaw  = $('sbLength').value;
+
+  const statusEl  = $('sbStatus');
+  const countEl   = $('sbCount');
+  const resultsEl = $('sbResults');
+
+  if(!sbWords.length){
+    statusEl.textContent = sbLoading ? '⏳ Dictionary loading…' : '📖 Load a dictionary above to start.';
+    countEl.style.display='none'; resultsEl.innerHTML=''; return;
+  }
+  if(!rackRaw){
+    statusEl.textContent = 'Enter your rack letters above to find words.';
+    countEl.style.display='none'; resultsEl.innerHTML=''; return;
+  }
+
+  const rackLetters = rackRaw.replace(/\?/g,'').split('');
+  const blanks = (rackRaw.match(/\?/g)||[]).length;
+  const mustHave = mustRaw.replace(/[^a-zA-Z,\s]/g,'').split(/[,\s]+/).map(c=>c.trim().toLowerCase()).filter(c=>c.length===1);
+  const lenFilter = parseSbLength(lenRaw);
+
+  let matches = sbWords.filter(w=>{
+    if(w.length > rackLetters.length + blanks) return false;
+    if(lenFilter && (w.length < lenFilter.min || w.length > lenFilter.max)) return false;
+    if(mustHave.length && !mustHave.every(l=>w.includes(l))) return false;
+    return sbCanForm(w, rackLetters, blanks);
+  });
+
+  statusEl.textContent = '';
+
+  if(!matches.length){
+    countEl.style.display='none';
+    resultsEl.innerHTML='<div class="empty-state" style="width:100%;text-align:center;padding:.5rem 0">🤔 No words found. Try removing some constraints or check your rack letters.</div>';
+    return;
+  }
+
+  // Attach scores
+  let scored = matches.map(w=>({ w, score: sbComputeScore(w, rackLetters, blanks) }));
+
+  // Sort
+  if(sbSort==='score')  scored.sort((a,b)=>b.score-a.score||b.w.length-a.w.length||a.w.localeCompare(b.w));
+  else if(sbSort==='length') scored.sort((a,b)=>b.w.length-a.w.length||b.score-a.score||a.w.localeCompare(b.w));
+  else scored.sort((a,b)=>a.w.localeCompare(b.w));
+
+  countEl.style.display='';
+  const totalScore = scored.reduce((s,x)=>s+x.score,0);
+  countEl.innerHTML = '<strong>'+scored.length.toLocaleString()+'</strong> word'+(scored.length!==1?'s':'')+' found';
+
+  const topScore = scored.length ? scored.reduce((m,x)=>x.score>m?x.score:m,0) : 0;
+  const show = scored.slice(0,300);
+
+  resultsEl.innerHTML = show.map(({w,score})=>{
+    const isHigh = score >= topScore * 0.7 && score >= 8;
+    return `<div class="sb-word-tile" data-word="${w}">${w.toUpperCase()}<span class="sb-score-badge${isHigh?' sb-score-high':''}">${score}pts</span></div>`;
+  }).join('') + (scored.length>300?`<div class="pill more-btn" style="pointer-events:none;cursor:default">+${scored.length-300} more</div>`:'');
+}
+
+function resetScrabble(){
+  $('sbRack').value='';
+  $('sbMustUse').value='';
+  $('sbLength').value='';
+  $('sbRackBadge').textContent='0 / 7';
+  $('sbRackPreview').innerHTML='';
+  $('sbStatus').textContent='';
+  $('sbCount').style.display='none';
+  $('sbResults').innerHTML='';
+  $('sbRack').focus();
+}
+
+// Click to copy scrabble results OR select for board placement
+$('sbResults').addEventListener('click', e=>{
+  const tile = e.target.closest('.sb-word-tile');
+  if(!tile) return;
+  const word = tile.dataset.word ? tile.dataset.word.toUpperCase() : tile.childNodes[0].textContent.trim();
+  // If board is visible, clicking a word selects it for placement instead of copying
+  if($('sbBoardPanel').style.display !== 'none'){
+    selectWordForPlacement(word);
+    return;
+  }
+  const finish = ()=>{ tile.classList.add('copied'); setTimeout(()=>tile.classList.remove('copied'),800); };
+  navigator.clipboard.writeText(word).then(finish).catch(()=>{ clipFallback(word); finish(); });
+});
+
+// ─── Scrabble Board ───────────────────────────────────────────────────────────
+
+const SB_SIZE = 15;
+const SB_PREMIUMS = (()=>{
+  const grid = Array.from({length:SB_SIZE},()=>Array(SB_SIZE).fill('normal'));
+  const mark=(r,c,t)=>{if(r>=0&&r<SB_SIZE&&c>=0&&c<SB_SIZE)grid[r][c]=t};
+  [[0,0],[0,7],[0,14],[7,0],[7,14],[14,0],[14,7],[14,14]].forEach(([r,c])=>mark(r,c,'tws'));
+  [[1,1],[2,2],[3,3],[4,4],[10,10],[11,11],[12,12],[13,13],
+   [1,13],[2,12],[3,11],[4,10],[10,4],[11,3],[12,2],[13,1]].forEach(([r,c])=>mark(r,c,'dws'));
+  mark(7,7,'star');
+  [[1,5],[1,9],[5,1],[5,5],[5,9],[5,13],
+   [9,1],[9,5],[9,9],[9,13],[13,5],[13,9]].forEach(([r,c])=>mark(r,c,'tls'));
+  [[0,3],[0,11],[2,6],[2,8],[3,0],[3,7],[3,14],
+   [6,2],[6,6],[6,8],[6,12],[7,3],[7,11],
+   [8,2],[8,6],[8,8],[8,12],[11,0],[11,7],[11,14],
+   [12,6],[12,8],[14,3],[14,11]].forEach(([r,c])=>mark(r,c,'dls'));
+  return grid;
+})();
+
+const LETTER_VALUES = {A:1,E:1,I:1,O:1,U:1,L:1,N:1,R:1,S:1,T:1,
+  D:2,G:2,B:3,C:3,M:3,P:3,F:4,H:4,V:4,W:4,Y:4,K:5,J:8,X:8,Q:10,Z:10};
+
+// Board state: null or {letter, blank, wordId, manual}
+let sbBoard = Array.from({length:SB_SIZE},()=>Array(SB_SIZE).fill(null));
+let sbPlacedWords = [];
+let sbSelectedWord = null;
+let sbPlaceDir = 'H';
+let sbBoardVisible = false;
+let sbWordIdCounter = 0;
+// Letter popover state
+let sbPopoverCell = null; // {r,c}
+
+function sbCellClass(r,c){
+  const p=SB_PREMIUMS[r][c];
+  if(p==='tws') return 'sb-cell-tws';
+  if(p==='dws'||p==='star') return 'sb-cell-dws';
+  if(p==='tls') return 'sb-cell-tls';
+  if(p==='dls') return 'sb-cell-dls';
+  return 'sb-cell-normal';
+}
+function sbCellLabel(r,c){
+  const p=SB_PREMIUMS[r][c];
+  if(p==='tws') return 'TWS';
+  if(p==='star') return '★';
+  if(p==='dws') return 'DWS';
+  if(p==='tls') return 'TLS';
+  if(p==='dls') return 'DLS';
+  return '';
+}
+function sbPremLabel(r,c){
+  const p=SB_PREMIUMS[r][c];
+  if(p==='tws') return '🔴 Triple Word Score';
+  if(p==='star') return '⭐ Double Word Score (centre)';
+  if(p==='dws') return '🟠 Double Word Score';
+  if(p==='tls') return '🔵 Triple Letter Score';
+  if(p==='dls') return '🩵 Double Letter Score';
+  return '';
+}
+
+function buildSbBoard(){
+  const grid=$('sbBoardGrid');
+  grid.innerHTML='';
+  for(let r=0;r<SB_SIZE;r++){
+    for(let c=0;c<SB_SIZE;c++){
+      const cell=document.createElement('div');
+      cell.className='sb-board-cell '+sbCellClass(r,c);
+      cell.dataset.r=r; cell.dataset.c=c;
+      const state=sbBoard[r][c];
+      if(state){
+        const tileEl=document.createElement('div');
+        tileEl.className='sb-board-tile'+(state.blank?' blank-tile':'');
+        tileEl.textContent=state.letter;
+        if(!state.blank){
+          const val=document.createElement('span');
+          val.className='sb-val';
+          val.textContent=LETTER_VALUES[state.letter]||'';
+          tileEl.appendChild(val);
+        }
+        cell.appendChild(tileEl);
+        cell.classList.add('has-tile');
+        if(state.manual){
+          cell.title='Click to edit or remove this tile';
+          cell.onclick=()=>openSbLetterPopover(r,c,cell);
+        } else {
+          cell.title='Click to remove this word';
+          cell.onclick=()=>removeSbWord(state.wordId);
+        }
+      } else {
+        cell.textContent=sbCellLabel(r,c);
+        if(sbSelectedWord){
+          cell.classList.add('placeable');
+          cell.onclick=(e)=>placeSbWord(r,c);
+          // Hover score preview
+          cell.addEventListener('mouseenter',()=>sbPreviewScore(r,c));
+          cell.addEventListener('mouseleave',()=>sbClearPreview());
+          cell.title='Place "'+sbSelectedWord+'" here';
+        } else {
+          // Empty cell — click to type a letter
+          cell.title='Click to type a letter';
+          cell.onclick=(e)=>openSbLetterPopover(r,c,cell);
+        }
+      }
+      grid.appendChild(cell);
+    }
+  }
+  const total=sbPlacedWords.reduce((s,w)=>s+w.score,0);
+  $('sbTotalScore').textContent=total;
+}
+
+// ── Score preview on hover ──────────────────────────────────────────────────
+function sbPreviewScore(r,c){
+  if(!sbSelectedWord) return;
+  if(!canPlace(sbSelectedWord,r,c,sbPlaceDir)){
+    $('sbPlaceScoreHint').textContent='⚠️ Can\'t place here';
+    return;
+  }
+  const score=computeWordScore(sbSelectedWord,r,c,sbPlaceDir);
+  $('sbPlaceScoreHint').textContent=score+' pts at ('+String.fromCharCode(65+c)+(r+1)+')';
+}
+function sbClearPreview(){
+  $('sbPlaceScoreHint').textContent='hover a cell to preview';
+}
+
+// ── Flip direction ──────────────────────────────────────────────────────────
+function flipSbDir(){
+  setSbDir(sbPlaceDir==='H'?'V':'H');
+}
+
+function toggleScrabbleBoard(){
+  sbBoardVisible=!sbBoardVisible;
+  const panel=$('sbBoardPanel');
+  const btn=$('sbShowBoardBtn');
+  if(sbBoardVisible){
+    panel.style.display='block';
+    btn.classList.add('active');
+    btn.textContent='🎲 Hide Board';
+    if($('sbBoardGrid').children.length===0) buildSbBoard();
+  } else {
+    panel.style.display='none';
+    btn.classList.remove('active');
+    btn.textContent='🎲 Show Board';
+    closeSbLetterPopover();
+  }
+}
+
+function selectWordForPlacement(word){
+  closeSbLetterPopover();
+  sbSelectedWord=word;
+  $('sbPlaceWord').textContent=word;
+  $('sbPlacePanel').style.display='block';
+  $('sbPlaceScoreHint').textContent='hover a cell to preview';
+  $('sbPlaceHint').textContent='Click any valid cell on the board to place "'+word+'".';
+  buildSbBoard();
+  document.querySelectorAll('.sb-word-tile').forEach(t=>{
+    t.style.borderColor=(t.dataset.word&&t.dataset.word.toUpperCase()===word)?'var(--accent)':'';
+  });
+}
+
+function cancelSbPlace(){
+  sbSelectedWord=null;
+  $('sbPlacePanel').style.display='none';
+  document.querySelectorAll('.sb-word-tile').forEach(t=>t.style.borderColor='');
+  buildSbBoard();
+}
+
+function setSbDir(d){
+  sbPlaceDir=d;
+  $('sbDirH').classList.toggle('active',d==='H');
+  $('sbDirV').classList.toggle('active',d==='V');
+  // Re-trigger preview for currently hovered cell if any
+  $('sbPlaceScoreHint').textContent='hover a cell to preview';
+}
+
+function canPlace(word,r,c,dir){
+  for(let i=0;i<word.length;i++){
+    const rr=dir==='H'?r:r+i;
+    const cc=dir==='H'?c+i:c;
+    if(rr>=SB_SIZE||cc>=SB_SIZE) return false;
+    if(sbBoard[rr][cc]&&sbBoard[rr][cc].letter!==word[i]) return false;
+  }
+  return true;
+}
+
+function computeWordScore(word,r,c,dir){
+  let wordMult=1, score=0;
+  for(let i=0;i<word.length;i++){
+    const rr=dir==='H'?r:r+i;
+    const cc=dir==='H'?c+i:c;
+    if(sbBoard[rr][cc]){ score+=LETTER_VALUES[word[i]]||0; continue; }
+    const p=SB_PREMIUMS[rr][cc];
+    let lv=LETTER_VALUES[word[i]]||0;
+    if(p==='tls') lv*=3;
+    else if(p==='dls') lv*=2;
+    score+=lv;
+    if(p==='tws'||p==='star') wordMult*=3;
+    else if(p==='dws') wordMult*=2;
+  }
+  return score*wordMult;
+}
+
+let sbAutoDeduct = false;
+
+function toggleSbAutoDeduct(){
+  sbAutoDeduct = !sbAutoDeduct;
+  const btn = $('sbAutoDeductBtn');
+  btn.textContent = '🔡 Auto-Deduct: ' + (sbAutoDeduct ? 'On' : 'Off');
+  btn.classList.toggle('on', sbAutoDeduct);
+}
+
+function deductFromRack(word){
+  const rackEl = $('sbRack');
+  let rack = (rackEl.value || '').toUpperCase().replace(/[^A-Z?]/g, '').split('');
+  for(const ch of word){
+    const idx = rack.indexOf(ch);
+    if(idx !== -1){ rack.splice(idx, 1); }
+    else {
+      const blankIdx = rack.indexOf('?');
+      if(blankIdx !== -1) rack.splice(blankIdx, 1);
+    }
+  }
+  rackEl.value = rack.join('');
+  sbOnInput();
+}
+
+function restoreToRack(word){
+  const rackEl = $('sbRack');
+  const current = (rackEl.value || '').replace(/[^a-zA-Z?]/g, '');
+  // Add back letters up to the 7-tile cap
+  let rack = current.toUpperCase().split('');
+  for(const ch of word){
+    if(rack.length < 7) rack.push(ch);
+  }
+  rackEl.value = rack.join('');
+  sbOnInput();
+}
+
+function placeSbWord(r,c){
+  if(!sbSelectedWord) return;
+  const word=sbSelectedWord;
+  const dir=sbPlaceDir;
+  if(!canPlace(word,r,c,dir)){
+    $('sbPlaceHint').textContent='⚠️ Can\'t place "'+word+'" there — goes off-board or conflicts. Try another cell or flip direction.';
+    return;
+  }
+  const id=++sbWordIdCounter;
+  const score=computeWordScore(word,r,c,dir);
+  for(let i=0;i<word.length;i++){
+    const rr=dir==='H'?r:r+i;
+    const cc=dir==='H'?c+i:c;
+    if(!sbBoard[rr][cc]) sbBoard[rr][cc]={letter:word[i],blank:false,wordId:id};
+  }
+  sbPlacedWords.push({id,word,row:r,col:c,dir,score});
+  if(sbAutoDeduct) deductFromRack(word);
+  sbSelectedWord=null;
+  $('sbPlacePanel').style.display='none';
+  document.querySelectorAll('.sb-word-tile').forEach(t=>t.style.borderColor='');
+  buildSbBoard();
+}
+
+function removeSbWord(wordId){
+  const entry=sbPlacedWords.find(w=>w.id===wordId);
+  if(!entry) return;
+  const cells=[];
+  for(let i=0;i<entry.word.length;i++){
+    const rr=entry.dir==='H'?entry.row:entry.row+i;
+    const cc=entry.dir==='H'?entry.col+i:entry.col;
+    cells.push([rr,cc]);
+  }
+  sbPlacedWords=sbPlacedWords.filter(w=>w.id!==wordId);
+  if(sbAutoDeduct) restoreToRack(entry.word);
+  cells.forEach(([rr,cc])=>{
+    const stillNeeded=sbPlacedWords.some(w=>{
+      for(let i=0;i<w.word.length;i++){
+        const wr=w.dir==='H'?w.row:w.row+i;
+        const wc=w.dir==='H'?w.col+i:w.col;
+        if(wr===rr&&wc===cc) return true;
+      }
+      return false;
+    });
+    // Only clear if not also a manual tile
+    if(!stillNeeded && !(sbBoard[rr][cc]&&sbBoard[rr][cc].manual)) sbBoard[rr][cc]=null;
+  });
+  buildSbBoard();
+}
+
+function clearSbBoard(){
+  sbBoard=Array.from({length:SB_SIZE},()=>Array(SB_SIZE).fill(null));
+  sbPlacedWords=[];
+  sbSelectedWord=null;
+  $('sbPlacePanel').style.display='none';
+  closeSbLetterPopover();
+  buildSbBoard();
+}
+
+// ── Letter input popover ────────────────────────────────────────────────────
+function openSbLetterPopover(r,c,cellEl){
+  if(sbSelectedWord) return; // don't open popover when placing a word
+  sbPopoverCell={r,c};
+  const pop=$('sbLetterPopover');
+  const cols='ABCDEFGHIJKLMNO';
+  $('sbLetterCoord').textContent='Cell: '+cols[c]+(r+1);
+  const prem=sbPremLabel(r,c);
+  $('sbLetterPrem').textContent=prem;
+  const existing=sbBoard[r][c];
+  $('sbLetterInput').value=existing?existing.letter:'';
+  // Position popover near the cell
+  const rect=cellEl.getBoundingClientRect();
+  const pw=170;
+  let left=rect.left+rect.width/2-pw/2;
+  let top=rect.bottom+6;
+  if(left+pw>window.innerWidth-8) left=window.innerWidth-pw-8;
+  if(left<8) left=8;
+  if(top+160>window.innerHeight) top=rect.top-160;
+  pop.style.left=left+'px'; pop.style.top=top+'px';
+  pop.classList.add('open');
+  setTimeout(()=>{ $('sbLetterInput').focus(); $('sbLetterInput').select(); },30);
+}
+
+$('sbLetterInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();confirmSbLetter();}
+  if(e.key==='Escape'){closeSbLetterPopover();}
+});
+// Auto-confirm on valid letter key
+$('sbLetterInput').addEventListener('input',e=>{
+  const v=e.target.value.replace(/[^a-zA-Z]/g,'').slice(-1).toUpperCase();
+  e.target.value=v;
+});
+
+function confirmSbLetter(){
+  if(!sbPopoverCell) return;
+  const {r,c}=sbPopoverCell;
+  const letter=($('sbLetterInput').value||'').toUpperCase().trim();
+  if(!letter||!/^[A-Z]$/.test(letter)){
+    $('sbLetterInput').focus();
+    return;
+  }
+  sbBoard[r][c]={letter,blank:false,wordId:null,manual:true};
+  closeSbLetterPopover();
+  buildSbBoard();
+}
+
+function deleteSbManualTile(){
+  if(!sbPopoverCell) return;
+  const {r,c}=sbPopoverCell;
+  // Only remove if it's a manual tile or unaffiliated
+  if(sbBoard[r][c]&&sbBoard[r][c].manual) sbBoard[r][c]=null;
+  closeSbLetterPopover();
+  buildSbBoard();
+}
+
+function closeSbLetterPopover(){
+  sbPopoverCell=null;
+  $('sbLetterPopover').classList.remove('open');
+}
+
+// Close popover on outside click
+document.addEventListener('click',e=>{
+  const pop=$('sbLetterPopover');
+  if(pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.closest('.sb-board-cell')){
+    closeSbLetterPopover();
+  }
+},true);
 </script>
+
+<!-- Scrabble letter input popover -->
+<div class="sb-letter-popover" id="sbLetterPopover">
+  <div class="sb-letter-popover-label">Enter letter</div>
+  <div class="sb-letter-popover-coord" id="sbLetterCoord"></div>
+  <input class="sb-letter-input" id="sbLetterInput" maxlength="1" autocomplete="off" spellcheck="false" />
+  <div class="sb-letter-prem" id="sbLetterPrem"></div>
+  <div class="sb-letter-popover-btns">
+    <button class="sb-letter-popover-btn primary" onclick="confirmSbLetter()">✓ Place</button>
+    <button class="sb-letter-popover-btn danger" onclick="deleteSbManualTile()">🗑 Remove</button>
+    <button class="sb-letter-popover-btn" onclick="closeSbLetterPopover()">✕</button>
+  </div>
+</div>
+
+<div style="position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 0;white-space:nowrap;pointer-events:none">
+  <p style="font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none;letter-spacing:.03em">Crafted by Claude &amp; ChatGPT</p>
+  <span style="font-size:.65rem;color:var(--muted);opacity:.45;pointer-events:none">·</span>
+  <button onclick="openModal()" style="font-size:.65rem;color:var(--accent);opacity:.55;background:none;border:none;cursor:pointer;padding:0;font-family:var(--font);letter-spacing:.03em;transition:opacity .15s;pointer-events:auto" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.55'">General Info</button>
+</div>
 </body>
 </html>
