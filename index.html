@@ -87,8 +87,8 @@
   .theme-toggle-track.tea{background:#c8a96e}
   .theme-toggle-track.normal{background:#818cf8}
   .theme-toggle-knob{position:absolute;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s}
-  .theme-toggle-track.tea .theme-toggle-knob{left:16px}
-  .theme-toggle-track.normal .theme-toggle-knob{left:2px}
+  .theme-toggle-track.tea .theme-toggle-knob{left:2px}
+  .theme-toggle-track.normal .theme-toggle-knob{left:16px}
   .theme-toggle-label{font-size:.75rem;font-weight:500;color:var(--text);white-space:nowrap;display:inline-block;min-width:5.5rem;text-align:left}
   .theme-toggle-emoji{font-size:.9rem;line-height:1}
   /* Preset dict buttons */
@@ -149,6 +149,12 @@
   .modal-footer{margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end}
   .modal-btn{font-family:var(--font);font-size:.8125rem;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 20px;cursor:pointer;transition:opacity .1s}
   .modal-btn:hover{opacity:.88}
+  .modal-divider{border:none;border-top:1px solid var(--border);margin:1.1rem 0}
+  .modal::-webkit-scrollbar{width:6px}
+  .modal::-webkit-scrollbar-track{background:transparent}
+  .modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+  .modal::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+  .modal{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 </style>
 </head>
 <body>
@@ -227,6 +233,12 @@ together"></textarea>
         <button class="pick-btn" onclick="resetWordle()">↺ Reset</button>
       </div>
 
+      <div class="controls-row" id="wordleControls">
+        <button class="toggle-btn" id="wordleCapsBtn" onclick="toggleWordleCaps()" title="Toggle capitalisation of result words">Aa Original</button>
+        <button class="toggle-btn" id="wordleAutoClearBtn" onclick="toggleWordleAutoClear()" title="Clear results automatically after copying a word">⎚ Auto-Clear: Off</button>
+        <button class="toggle-btn" id="wordleControlsToggle" onclick="toggleWordleControls()">Hide</button>
+      </div>
+
       <div id="wordleStatus"></div>
       <div class="wordle-results-count" id="wordleCount" style="display:none"></div>
       <div class="results" id="wordleResults" style="justify-content:center"></div>
@@ -303,38 +315,73 @@ together"></textarea>
       <button class="modal-close" onclick="closeModal()" aria-label="Close">&#x2715;</button>
     </div>
 
-    <div class="modal-section">
-      <div class="modal-label">Basics</div>
-      <div class="modal-row"><span class="modal-icon">🖱️</span><span><strong>Click any word</strong> to copy it to your clipboard instantly.</span></div>
-      <div class="modal-row"><span class="modal-icon">📋</span><span>Paste or drop a <strong>.txt file</strong> into the word list box to load your words.</span></div>
+    <!-- Mode toggle at top of modal -->
+    <div style="display:flex;gap:4px;background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:1.1rem">
+      <button id="helpTeaBtn" onclick="setHelpMode('tea')" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--text);font-weight:500;cursor:pointer;transition:background .15s,color .15s">🍵 Tea Mode</button>
+      <button id="helpWordleBtn" onclick="setHelpMode('wordle')" style="flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);cursor:pointer;transition:background .15s,color .15s">🟩 Wordle Solver</button>
     </div>
 
-    <div class="modal-section">
-      <div class="modal-label">Modes</div>
-      <div class="modal-row"><span class="modal-icon">🖤</span><span><strong>Black Tea</strong> — search for individual words by typing any substring.</span></div>
-      <div class="modal-row"><span class="modal-icon">❤️</span><span><strong>Red Tea</strong> — finds the longest word(s) in your list, optionally filtered by a substring.</span></div>
-      <div class="modal-row"><span class="modal-icon">💛</span><span><strong>Yellow Tea</strong> — picks a batch of matching words at once; set the count on the right.</span></div>
+    <!-- Tea Mode help -->
+    <div id="helpTeaContent">
+      <div class="modal-section">
+        <div class="modal-label">Basics</div>
+        <div class="modal-row"><span class="modal-icon">🖱️</span><span><strong>Click any word</strong> to copy it to your clipboard instantly.</span></div>
+        <div class="modal-row"><span class="modal-icon">📋</span><span>Paste or drop a <strong>.txt file</strong> into the word list box to load your words.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Modes</div>
+        <div class="modal-row"><span class="modal-icon">🖤</span><span><strong>Black Tea</strong> — search for individual words by typing any substring.</span></div>
+        <div class="modal-row"><span class="modal-icon">❤️</span><span><strong>Red Tea</strong> — finds the longest word(s) in your list, optionally filtered by a substring.</span></div>
+        <div class="modal-row"><span class="modal-icon">💛</span><span><strong>Yellow Tea</strong> — picks a batch of matching words at once; set the count on the right.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Controls</div>
+        <div class="modal-row"><span class="modal-icon">🗑️</span><span><strong>Remove on copy</strong> — word disappears from results after you copy it.</span></div>
+        <div class="modal-row"><span class="modal-icon">↻</span><span><strong>Refresh</strong> — brings back all removed words (or press <strong>Esc</strong>).</span></div>
+        <div class="modal-row"><span class="modal-icon">⚡</span><span><strong>Auto-copy</strong> — automatically copies the best match once you've typed 3+ letters.</span></div>
+        <div class="modal-row"><span class="modal-icon">⎚</span><span><strong>Auto-clear</strong> — clears the search bar immediately after a word is copied.</span></div>
+        <div class="modal-row"><span class="modal-icon">⇄</span><span><strong>Sep</strong> — (Yellow Tea only) changes how the copied batch is joined: <strong>Space</strong>, <strong>Comma</strong>, or <strong>New Line</strong>. Click it to cycle through the three.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Preset Dictionaries</div>
+        <div class="modal-row"><span class="modal-icon">📍</span><span>You can find the preset dictionary buttons at the <strong>very top of the page</strong>.</span></div>
+        <div class="modal-row"><span class="modal-icon">📗</span><span><strong>CSW24</strong> — Collins Scrabble Words 2024, the standard for international Scrabble.</span></div>
+        <div class="modal-row"><span class="modal-icon">📘</span><span><strong>NWL2023</strong> — NASPA Word List 2023 Edition, the standard for North American Scrabble.</span></div>
+        <div class="modal-row"><span class="modal-icon">📙</span><span><strong>SOWPODS</strong> — A comprehensive combined word list widely used in competitive English Scrabble.</span></div>
+        <div class="modal-row"><span class="modal-icon">📒</span><span><strong>English™</strong> — Just English words™.</span></div>
+        <div class="modal-row"><span class="modal-icon">⚠️</span><span>The <strong>Load Dictionary</strong> button loads a general-purpose dictionary that may be less complete than the preset lists above.</span></div>
+      </div>
     </div>
 
-    <div class="modal-section">
-      <div class="modal-label">Controls</div>
-      <div class="modal-row"><span class="modal-icon">🗑️</span><span><strong>Remove on copy</strong> — word disappears from results after you copy it.</span></div>
-      <div class="modal-row"><span class="modal-icon">↻</span><span><strong>Refresh</strong> — brings back all removed words (or press <strong>Esc</strong>).</span></div>
-      <div class="modal-row"><span class="modal-icon">⚡</span><span><strong>Auto-copy</strong> — automatically copies the best match once you've typed 3+ letters.</span></div>
-      <div class="modal-row"><span class="modal-icon">⎚</span><span><strong>Auto-clear</strong> — clears the search bar immediately after a word is copied.</span></div>
-      <div class="modal-row"><span class="modal-icon">⇄</span><span><strong>Sep</strong> — (Yellow Tea only) changes how the copied batch is joined: <strong>Space</strong>, <strong>Comma</strong>, or <strong>New Line</strong>. Click it to cycle through the three.</span></div>
+    <!-- Wordle Solver help -->
+    <div id="helpWordleContent" style="display:none">
+      <div class="modal-section">
+        <div class="modal-label">Basics</div>
+        <div class="modal-row"><span class="modal-icon">🟩</span><span>The Wordle Solver helps you narrow down possible words based on your guesses.</span></div>
+        <div class="modal-row"><span class="modal-icon">⌨️</span><span>Type a letter into each cell, then <strong>click the cell</strong> to cycle its color: grey → yellow → green.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Colors</div>
+        <div class="modal-row"><span class="modal-icon" style="color:#6b7280">⬛</span><span><strong>Grey</strong> — that letter is <em>not</em> in the word at all.</span></div>
+        <div class="modal-row"><span class="modal-icon" style="color:#ca8a04">🟨</span><span><strong>Yellow</strong> — the letter is in the word, but <em>not</em> at that position.</span></div>
+        <div class="modal-row"><span class="modal-icon" style="color:#16a34a">🟩</span><span><strong>Green</strong> — the letter is in the word at <em>exactly</em> that position.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Controls</div>
+        <div class="modal-row"><span class="modal-icon">➕</span><span><strong>Add Row</strong> — add another past guess to refine the results further.</span></div>
+        <div class="modal-row"><span class="modal-icon">🔍</span><span><strong>Solve</strong> — filters the dictionary and shows all words still possible (or press <strong>Enter</strong> in any cell).</span></div>
+        <div class="modal-row"><span class="modal-icon">↺</span><span><strong>Reset</strong> — clears all guesses and results to start fresh.</span></div>
+        <div class="modal-row"><span class="modal-icon">🖱️</span><span><strong>Click any result word</strong> to copy it to your clipboard instantly.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Tips</div>
+        <div class="modal-row"><span class="modal-icon">💡</span><span>The dictionary loads automatically when you switch to Wordle mode — wait for the badge to show a word count before solving.</span></div>
+        <div class="modal-row"><span class="modal-icon">🔤</span><span>Duplicate letters work correctly: if you marked a letter grey <em>and</em> yellow, only the yellow rule applies.</span></div>
+      </div>
     </div>
 
-    <div class="modal-section">
-      <div class="modal-label">Preset Dictionaries</div>
-      <div class="modal-row"><span class="modal-icon">📍</span><span>You can find the preset dictionary buttons at the <strong>very top of the page</strong>.</span></div>
-      <div class="modal-row"><span class="modal-icon">📗</span><span><strong>CSW24</strong> — Collins Scrabble Words 2024, the standard for international Scrabble.</span></div>
-      <div class="modal-row"><span class="modal-icon">📘</span><span><strong>NWL2023</strong> — NASPA Word List 2023 Edition, the standard for North American Scrabble.</span></div>
-      <div class="modal-row"><span class="modal-icon">📙</span><span><strong>SOWPODS</strong> — A comprehensive combined word list widely used in competitive English Scrabble.</span></div>
-      <div class="modal-row"><span class="modal-icon">📒</span><span><strong>English™</strong> — Just English words™.</span></div>
-      <div class="modal-row"><span class="modal-icon">⚠️</span><span>The <strong>Load Dictionary</strong> button loads a general-purpose dictionary that may be less complete than the preset lists above.</span></div>
-    </div>
-
+    <hr class="modal-divider">
+    <!-- About — always visible -->
     <div class="modal-section">
       <div class="modal-label">About</div>
       <div class="modal-row"><span class="modal-icon">🀄</span><span>Built mainly for <strong>Mudae's $tea</strong> word game and similar word-guessing games, where you need to quickly find a word containing a specific letter combo — but it works just as well for Scrabble, Wordle helpers, or any other word game.</span></div>
@@ -868,6 +915,7 @@ function resetWordList(){
 
 // ─── Tea Mode toggle ──────────────────────────────────────────────────────────
 let teaMode = true;
+let _stashedWordList = null; // holds textarea content while in Wordle mode
 function toggleTeaMode(){
   teaMode = !teaMode;
   const track=$('teaTrack'), emoji=$('teaEmoji'), label=$('teaLabel');
@@ -877,14 +925,23 @@ function toggleTeaMode(){
     $('modeLabelSearch').innerHTML='&#x1F5A4; Black Tea';
     $('modeLabelLongest').innerHTML='&#x2764;&#xFE0F; Red Tea';
     $('modeLabelPick').innerHTML='&#x1F49B; Yellow Tea';
-    // Show tea UI, hide wordle UI
+    // Show tea UI first so the switch feels instant
     $('teaSection').style.display='';
     $('teaModeSection').style.display='';
     $('wordleSection').style.display='none';
     $('secretBtns').style.display='';
+    // Restore textarea content after the browser has painted, so there's no blocking layout cost
+    if(_stashedWordList !== null){
+      const toRestore = _stashedWordList;
+      _stashedWordList = null;
+      requestAnimationFrame(()=>{ setTimeout(()=>{ wordListEl.value = toRestore; }, 0); });
+    }
   } else {
     track.className='theme-toggle-track normal';
     emoji.textContent='🟩'; label.textContent='Wordle Mode';
+    // Stash and clear the textarea so the DOM isn't holding a huge string while hidden
+    _stashedWordList = wordListEl.value;
+    wordListEl.value = '';
     // Hide tea UI, show wordle UI
     $('teaSection').style.display='none';
     $('teaModeSection').style.display='none';
@@ -899,7 +956,17 @@ function toggleTeaMode(){
 
 // ─── Help modal ──────────────────────────────────────────────────────────────
 const HELP_KEY = 'wsHelpSeen';
+function setHelpMode(mode){
+  const isTea = mode === 'tea';
+  $('helpTeaContent').style.display    = isTea ? '' : 'none';
+  $('helpWordleContent').style.display = isTea ? 'none' : '';
+  const activeStyle   = 'flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--text);font-weight:500;cursor:pointer;transition:background .15s,color .15s';
+  const inactiveStyle = 'flex:1;background:none;border:none;border-radius:6px;padding:6px 8px;font-size:.8125rem;font-family:var(--font);color:var(--muted);font-weight:normal;cursor:pointer;transition:background .15s,color .15s';
+  $('helpTeaBtn').style.cssText    = isTea  ? activeStyle : inactiveStyle;
+  $('helpWordleBtn').style.cssText = !isTea ? activeStyle : inactiveStyle;
+}
 function openModal(){
+  setHelpMode(teaMode ? 'tea' : 'wordle');
   $('helpModal').classList.add('open');
   document.addEventListener('keydown', _modalEsc);
 }
@@ -1090,9 +1157,63 @@ function solveWordle(){
   countEl.innerHTML = `<strong>${matches.length}</strong> possible word${matches.length!==1?'s':''} remaining`;
 
   const show = matches.slice(0, 200);
-  resultsEl.innerHTML = show.map(w=>`<div class="pill" onclick="navigator.clipboard.writeText('${w}');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),800)">${w.toUpperCase()}</div>`).join('')
+  resultsEl.innerHTML = show.map(w=>`<div class="pill" data-word="${w}">${applyWordleCase(w)}</div>`).join('')
     + (matches.length>200 ? `<div class="pill more-btn" style="pointer-events:none">+${matches.length-200} more</div>` : '');
 }
+
+// ─── Wordle controls ──────────────────────────────────────────────────────────
+let wordleCapsMode = 0;       // 0=orig 1=UPPER 2=lower
+let wordleAutoClear = false;
+let wordleControlsVisible = true;
+
+function toggleWordleCaps(){
+  wordleCapsMode = (wordleCapsMode + 1) % 3;
+  const btn = $('wordleCapsBtn');
+  btn.textContent = ['Aa Original','AA UPPERCASE','aa lowercase'][wordleCapsMode];
+  btn.classList.toggle('on', wordleCapsMode !== 0);
+  // Re-render existing pills with new case
+  $('wordleResults').querySelectorAll('.pill[data-word]').forEach(p=>{
+    p.textContent = applyWordleCase(p.dataset.word);
+  });
+}
+function applyWordleCase(w){
+  return wordleCapsMode === 1 ? w.toUpperCase() : wordleCapsMode === 2 ? w.toLowerCase() : w.toUpperCase(); // default display is upper (Wordle style)
+}
+function toggleWordleAutoClear(){
+  wordleAutoClear = !wordleAutoClear;
+  const btn = $('wordleAutoClearBtn');
+  btn.textContent = `⎚ Auto-Clear: ${wordleAutoClear ? 'On' : 'Off'}`;
+  btn.classList.toggle('on', wordleAutoClear);
+}
+function toggleWordleControls(){
+  wordleControlsVisible = !wordleControlsVisible;
+  const btn = $('wordleControlsToggle');
+  const row = $('wordleControls');
+  // Show/hide all buttons except the toggle itself
+  ['wordleCapsBtn','wordleAutoClearBtn'].forEach(id=>{
+    $(id).style.display = wordleControlsVisible ? '' : 'none';
+  });
+  btn.textContent = wordleControlsVisible ? 'Hide' : 'Show';
+  btn.classList.toggle('on', !wordleControlsVisible);
+}
+
+// Delegated click handler for wordle results — mirrors Tea mode copy behaviour
+$('wordleResults').addEventListener('click', e=>{
+  const pill = e.target.closest('.pill:not(.more-btn)');
+  if(!pill) return;
+  const word = pill.dataset.word;
+  if(!word) return;
+  const finish = ()=>{
+    pill.classList.add('copied');
+    if(wordleAutoClear){
+      setTimeout(()=>{ resetWordle(); }, 80);
+    } else {
+      setTimeout(()=>pill.classList.remove('copied'), 800);
+    }
+  };
+  const wordToCopy = applyWordleCase(word);
+  navigator.clipboard.writeText(wordToCopy).then(finish).catch(()=>{ clipFallback(wordToCopy); finish(); });
+});
 
 // Init wordle with one empty row ready — but only when entering wordle mode (lazy)
 // Don't load on page init; wait until mode is switched.
