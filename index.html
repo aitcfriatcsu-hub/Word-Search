@@ -252,13 +252,15 @@
   .sb-board-cell.has-tile:hover{opacity:1;box-shadow:none}
   .sb-board-tile{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5dfa0;border:2px solid #c8a84b;border-radius:3px;font-size:.9rem;font-weight:700;font-family:var(--mono);color:#3d2e00;position:relative}
   .sb-board-tile .sb-val{position:absolute;bottom:1px;right:3px;font-size:.45rem;font-weight:600;color:#7a6020;line-height:1}
-  .sb-board-tile.blank-tile{background:#f0efe9;border-color:var(--border);color:var(--muted)}
-  .sb-board-tile.blank-tile.blank-yellow{background:#fef08a;border-color:#ca8a04;color:#713f12}
+  .sb-board-tile.blank-tile{background:#f0efe9;border-color:#b91c1c;border-width:2.5px;color:var(--muted)}
+  .sb-board-tile.blank-tile.blank-yellow{background:#fef08a;border-color:#b91c1c;color:#b91c1c}
+  .sb-board-tile.blank-tile.blank-yellow .sb-val{color:#b91c1c;opacity:.65}
   @media(prefers-color-scheme:dark){
     .sb-board-tile{background:#5a4a1a;border-color:#8a7030;color:#ffe8a0}
     .sb-board-tile .sb-val{color:#c8a84b}
-    .sb-board-tile.blank-tile{background:var(--pill-bg);border-color:var(--border);color:var(--muted)}
-    .sb-board-tile.blank-tile.blank-yellow{background:#854d0e;border-color:#ca8a04;color:#fef9c3}
+    .sb-board-tile.blank-tile{background:var(--pill-bg);border-color:#f87171;border-width:2.5px;color:var(--muted)}
+    .sb-board-tile.blank-tile.blank-yellow{background:#854d0e;border-color:#f87171;color:#fca5a5}
+    .sb-board-tile.blank-tile.blank-yellow .sb-val{color:#fca5a5;opacity:.75}
   }
   .sb-place-panel{
     background:color-mix(in srgb,var(--accent) 9%,var(--surface));
@@ -292,10 +294,18 @@
   @media(max-width:600px){.sb-board-cell{width:22px;height:22px;font-size:.45rem}.sb-board-tile{font-size:.65rem}.sb-board-tile .sb-val{display:none}}
 
   /* Letter input popover */
-  .sb-letter-popover{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.22);padding:.75rem;display:none;flex-direction:column;align-items:center;gap:.5rem;width:min(320px,92vw)}
+  .sb-letter-popover-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.25);display:none}
+  .sb-letter-popover-backdrop.open{display:block}
+  .sb-letter-popover{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.22);padding:.75rem;display:none;flex-direction:column;align-items:center;gap:.5rem;width:min(280px,88vw);max-height:min(360px,80vh);overflow:auto}
   .sb-letter-popover.open{display:flex}
-  .sb-letter-popover-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .sb-letter-popover-close{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--pill-bg);color:var(--text);font-size:1rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+  .sb-letter-popover-close:hover,.sb-letter-popover-close:active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .sb-letter-popover-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-right:1.5rem}
   .sb-letter-popover-coord{font-size:.7rem;color:var(--muted);margin-top:-.25rem}
+  @media(max-width:600px){
+    .sb-letter-popover{width:min(240px,82vw);max-height:min(320px,70vh);padding:.6rem;gap:.4rem}
+    .sb-letter-input{width:44px;height:44px;font-size:1.25rem}
+  }
   .sb-letter-input{width:52px;height:52px;border:2px solid var(--accent);border-radius:8px;font-size:1.5rem;font-weight:700;text-align:center;text-transform:uppercase;background:var(--surface);color:var(--text);outline:none;font-family:var(--mono)}
   /* Letter grid */
   .sb-letter-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
@@ -581,6 +591,22 @@ together"></textarea>
           <span style="font-size:.75rem;color:var(--muted);margin-left:4px">— switches automatically after each word placed</span>
         </div>
 
+        <!-- Manual word entry: for placing any word (e.g. opponent's longer word that
+             reuses board letters, or anything not in the dictionary list) without the
+             7-letter rack cap. Goes straight into the normal placement flow. -->
+        <div class="sb-place-panel" id="sbManualWordPanel" style="margin-bottom:.75rem">
+          <div class="sb-place-row" style="flex-wrap:wrap">
+            <span class="sb-place-label">Type any word:</span>
+            <input id="sbManualWordInput" type="text" maxlength="15" placeholder="e.g. OXIDIZED" autocomplete="off" spellcheck="false" inputmode="text"
+              style="flex:1;min-width:120px;font-family:var(--mono);font-size:.9rem;font-weight:700;text-transform:uppercase;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;letter-spacing:.04em"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+              oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')"
+              onkeydown="if(event.key==='Enter')selectManualSbWord()" />
+            <button class="sb-board-btn" onclick="selectManualSbWord()" style="padding:5px 14px;font-size:.8125rem">✓ Use word</button>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">No length limit — use this for an opponent's word that runs longer than 7 letters by building off tiles already on the board. Click "Use word" then click the board (or type a coordinate) to place it, same as usual.</div>
+        </div>
+
         <!-- Word placement control panel (shows when a word is selected) -->
         <div class="sb-place-panel" id="sbPlacePanel" style="display:none">
           <div class="sb-place-row">
@@ -814,9 +840,11 @@ together"></textarea>
         <div class="modal-label">🎲 Interactive Board</div>
         <div class="modal-row"><span class="modal-icon">🎲</span><span>Click <strong>Show Board</strong> to open the 15×15 Scrabble board with all premium squares (TWS, DWS, TLS, DLS) in their correct positions.</span></div>
         <div class="modal-row"><span class="modal-icon">🖱️</span><span><strong>Place words from results:</strong> With the board open, click any result word to select it. A highlighted <strong>Placing</strong> panel appears at the top — choose <strong>→ Across</strong> or <strong>↓ Down</strong>, then click any board cell to place it. Hover cells to preview the score first.</span></div>
+        <div class="modal-row"><span class="modal-icon">⌨️</span><span><strong>Type any word:</strong> The box above the board labelled <strong>"Type any word"</strong> lets you place a word of <em>any length</em>, with no 7-letter cap — type it, click <strong>✓ Use word</strong>, then click a cell (or type a coordinate) to place it just like a result word. This is the easiest way to enter an <strong>opponent's word</strong>, especially a longer one they made by building off letters already on the board.</span></div>
         <div class="modal-row"><span class="modal-icon">⇄</span><span><strong>Flip direction:</strong> Click the <strong>⇄ Flip</strong> button (or click the direction buttons) at any time before placing to instantly switch between Across and Down without re-selecting the word.</span></div>
         <div class="modal-row"><span class="modal-icon">⌨️</span><span><strong>Type individual letters:</strong> Click any <em>empty</em> cell on the board to open a letter input. Type a letter and click <strong>Place</strong> to set it manually — useful for typing in opponent tiles or board state. Click a manually-placed tile to edit or remove it.</span></div>
-        <div class="modal-row"><span class="modal-icon">❓</span><span><strong>Blank tiles on the board:</strong> In the letter input, type <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?A</code> (a <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?</code> followed by the letter) to place a <strong>blank tile</strong> showing that letter — it scores 0 points but displays in <strong style="color:#713f12;background:#fef08a;padding:0 3px;border-radius:3px">yellow</strong>. You can also click an existing tile and use the <strong>⇄ Make Blank / Make Normal</strong> button to toggle it.</span></div>
+        <div class="modal-row"><span class="modal-icon">🧩</span><span><strong>Board-aware results &amp; hints:</strong> Once the board has tiles on it, both the word list and the 💡 Hint button also search for words that thread through letters <em>already on the board</em> — so they can suggest words longer than your rack alone could spell (e.g. rack <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">GGTICLY</code> + board letters spelling <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">GIGANTICALLY</code>). These results are marked with a <strong>🧩 board</strong> badge and show their real on-board score, including cross-words.</span></div>
+        <div class="modal-row"><span class="modal-icon">❓</span><span><strong>Blank tiles on the board:</strong> In the letter input, type <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?A</code> (a <code style="font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">?</code> followed by the letter) to place a <strong>blank tile</strong> showing that letter — it scores 0 points but stands out with a <strong style="color:#b91c1c;background:#fef08a;padding:0 3px;border-radius:3px">dark red letter on a yellow tile</strong>, so it's easy to spot at a glance. You can also click an existing tile and use the <strong>⇄ Make Blank / Make Normal</strong> button to toggle it.</span></div>
         <div class="modal-row"><span class="modal-icon">🟨</span><span><strong>Blank tile appearance:</strong> The <strong>🟨 Blank: Yellow</strong> button in the board header toggles how blank tiles look. <strong>🟨 Yellow</strong> makes blank tiles look similar to normal tiles (amber, 0 pts). <strong>⬜ Normal</strong> colours them the same as the board background, making them more visually distinct.</span></div>
         <div class="modal-row"><span class="modal-icon">💯</span><span><strong>Score preview:</strong> Hover over a board cell while a word is selected to see the estimated score shown in the placement panel. Each word tile in the results also shows a <span style="color:#16a34a;font-weight:600">green score badge</span> with its potential points once you hover a valid placement cell.</span></div>
         <div class="modal-row"><span class="modal-icon">🗑️</span><span><strong>Remove tiles:</strong> Click any placed word-tile to remove that entire word from the board. Click a manually-placed tile to edit or delete just that letter.</span></div>
@@ -828,6 +856,13 @@ together"></textarea>
         <div class="modal-row"><span class="modal-icon">✅</span><span><strong>Auto-Deduct: On</strong> — after placing a word, those letters are instantly deducted from your rack and the results refresh to show only words you can still play with your remaining tiles.</span></div>
         <div class="modal-row"><span class="modal-icon">↩️</span><span><strong>Removing a placed word</strong> — if you click a word-tile to remove it from the board while Auto-Deduct is on, those letters are automatically <em>returned</em> to your rack.</span></div>
         <div class="modal-row"><span class="modal-icon">💡</span><span>Turn Auto-Deduct <strong>off</strong> if you want to keep your full rack visible regardless of what's already placed — useful when planning multiple turns ahead.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">🔄 Turn Mode</div>
+        <div class="modal-row"><span class="modal-icon">🔄</span><span>Toggle <strong>Turn Mode</strong> in the board header to track <strong>your score</strong> and your <strong>opponent's score</strong> separately as you both play, instead of one combined total.</span></div>
+        <div class="modal-row"><span class="modal-icon">👤</span><span>A <strong>Current turn</strong> indicator appears — switch between <strong>👤 My Turn</strong> and <strong>🆚 Opponent's Turn</strong> before placing a word, so it's credited to the right player. The turn switches automatically after each word is placed.</span></div>
+        <div class="modal-row"><span class="modal-icon">⌨️</span><span>To enter what your opponent played, switch to <strong>🆚 Opponent's Turn</strong>, then use the <strong>Type any word</strong> box (or a result word) to place it — this works for words of any length, including ones longer than 7 letters built off the existing board.</span></div>
+        <div class="modal-row"><span class="modal-icon">↺</span><span><strong>Reset Scores</strong> sets both totals back to 0 without clearing the board.</span></div>
       </div>
     </div>
 
@@ -1984,10 +2019,13 @@ function sbComputeScore(word, rackLetters, blanks){
   for(const c of rackLetters) freq[c]=(freq[c]||0)+1;
   let blanksLeft = blanks;
   let score = 0;
+  let rackTilesUsed = 0;
   for(const c of word){
-    if(freq[c] && freq[c]>0){ freq[c]--; score+=sbLetterValue(c); }
-    else if(blanksLeft>0){ blanksLeft--; /* blank: 0 pts */ }
+    if(freq[c] && freq[c]>0){ freq[c]--; score+=sbLetterValue(c); rackTilesUsed++; }
+    else if(blanksLeft>0){ blanksLeft--; rackTilesUsed++; /* blank: 0 pts */ }
   }
+  // Bingo bonus: +50 when all 7 rack tiles are used
+  if(rackTilesUsed >= 7) score += 50;
   return score;
 }
 
@@ -2024,6 +2062,8 @@ function setSbSort(s){
   solveScrabble();
 }
 
+let sbBoardSearchTimer = null;
+
 function solveScrabble(){
   const rackRaw = ($('sbRack').value||'').toLowerCase().replace(/[^a-z?]/g,'');
   const mustRaw = $('sbMustUse').value;
@@ -2032,6 +2072,8 @@ function solveScrabble(){
   const statusEl  = $('sbStatus');
   const countEl   = $('sbCount');
   const resultsEl = $('sbResults');
+
+  clearTimeout(sbBoardSearchTimer);
 
   if(!sbWords.length){
     statusEl.textContent = sbLoading ? '⏳ Dictionary loading…' : '📖 Load a dictionary above to start.';
@@ -2056,14 +2098,54 @@ function solveScrabble(){
 
   statusEl.textContent = '';
 
-  if(!matches.length){
+  // Attach scores (plain rack score, ignores any board/premiums) and render
+  // immediately — this part is cheap and must stay snappy while typing.
+  let scored = matches.map(w=>({ w, score: sbComputeScore(w, rackLetters, blanks), board:false }));
+  renderSbResults(scored);
+
+  // When the board is open, also look for words that only work by threading
+  // through tiles already on the board (so can be longer than the rack alone
+  // allows) — e.g. board "I_AN___AL" + rack "GGTICLY" -> "GIGANTICALLY". This
+  // search is much more expensive (scans the whole board), so it's debounced
+  // and merged in a moment after typing settles, rather than blocking every
+  // keystroke.
+  if($('sbBoardPanel').style.display !== 'none' && !sbBoardIsEmpty()){
+    sbBoardSearchTimer = setTimeout(()=>{
+      const {all} = sbFindBoardPlacements(rackLetters, blanks);
+      const bestByWord = new Map(); // word -> best {score, r, c, dir}
+      for(const p of all){
+        if(lenFilter && (p.word.length < lenFilter.min || p.word.length > lenFilter.max)) continue;
+        if(mustHave.length && !mustHave.every(l=>p.word.toLowerCase().includes(l))) continue;
+        const existing = bestByWord.get(p.word);
+        if(!existing || p.score>existing.score) bestByWord.set(p.word, p);
+      }
+      if(!bestByWord.size) return;
+      const merged = scored.map(x=>({...x}));
+      const existingWords = new Set(merged.map(x=>x.w));
+      for(const [word, p] of bestByWord){
+        const lw = word.toLowerCase();
+        if(existingWords.has(lw)){
+          const entry = merged.find(x=>x.w===lw);
+          if(entry && p.score>entry.score){ entry.score=p.score; entry.board=true; }
+          continue;
+        }
+        merged.push({ w: lw, score: p.score, board: true });
+        existingWords.add(lw);
+      }
+      renderSbResults(merged);
+    }, 300);
+  }
+}
+
+function renderSbResults(scored){
+  const countEl   = $('sbCount');
+  const resultsEl = $('sbResults');
+
+  if(!scored.length){
     countEl.style.display='none';
     resultsEl.innerHTML='<div class="empty-state" style="width:100%;text-align:center;padding:.5rem 0">🤔 No words found. Try removing some constraints or check your rack letters.</div>';
     return;
   }
-
-  // Attach scores
-  let scored = matches.map(w=>({ w, score: sbComputeScore(w, rackLetters, blanks) }));
 
   // Sort
   if(sbSort==='score')  scored.sort((a,b)=>b.score-a.score||b.w.length-a.w.length||a.w.localeCompare(b.w));
@@ -2071,15 +2153,15 @@ function solveScrabble(){
   else scored.sort((a,b)=>a.w.localeCompare(b.w));
 
   countEl.style.display='';
-  const totalScore = scored.reduce((s,x)=>s+x.score,0);
   countEl.innerHTML = '<strong>'+scored.length.toLocaleString()+'</strong> word'+(scored.length!==1?'s':'')+' found';
 
   const topScore = scored.length ? scored.reduce((m,x)=>x.score>m?x.score:m,0) : 0;
   const show = scored.slice(0,300);
 
-  resultsEl.innerHTML = show.map(({w,score})=>{
+  resultsEl.innerHTML = show.map(({w,score,board})=>{
     const isHigh = score >= topScore * 0.7 && score >= 8;
-    return `<div class="sb-word-tile" data-word="${w}">${w.toUpperCase()}<span class="sb-score-badge${isHigh?' sb-score-high':''}">${score}pts</span></div>`;
+    const boardBadge = board ? '<span class="sb-score-badge" style="background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);margin-left:3px" title="Uses letters already on the board">🧩 board</span>' : '';
+    return `<div class="sb-word-tile" data-word="${w}">${w.toUpperCase()}<span class="sb-score-badge${isHigh?' sb-score-high':''}">${score}pts</span>${boardBadge}</div>`;
   }).join('') + (scored.length>300?`<div class="pill more-btn" style="pointer-events:none;cursor:default">+${scored.length-300} more</div>`:'');
 }
 
@@ -2112,6 +2194,174 @@ $('sbResults').addEventListener('click', e=>{
 // ── Hint: find best placement ────────────────────────────────────────────────
 let sbHintPlacement = null; // {word, r, c, dir, score}
 
+// ── Board-aware placement search ─────────────────────────────────────────────
+// Finds every word the dictionary contains that can be placed on the current
+// board using the given rack (+ blanks), including words that are longer than
+// the rack because they thread through letters already on the board (e.g.
+// board "I_AN___AL" + rack "GGTICLY" -> "GIGANTICALLY"). Used by both the Hint
+// button (which just wants the single best-scoring placement) and the word-list
+// solver (which wants every such word, to show alongside pure-rack words).
+//
+// Anchor-based: rather than testing every dictionary word against every board
+// cell (too slow once words can span/reuse several tiles), this scans every
+// line of the board through every occupied cell and builds the exact letter
+// pattern that line allows at each possible word length (fixed letters at
+// known offsets, open slots elsewhere, bounded by where the run is blocked by
+// another tile or jammed against one end-to-end). Each pattern then filters
+// only same-length dictionary words via a fast manual char-compare — no regex
+// overhead, no per-window full-dictionary scan — which stays fast even on a
+// 200k+ word list and a busy late-game board.
+function sbFindBoardPlacements(rackLetters, blanks){
+  const all = [];          // every valid {word,r,c,dir,score,strict} placement found
+  let bestStrict = null, bestRelaxed = null;
+  if(!sbWords.length) return {all, bestStrict, bestRelaxed};
+
+  const sbWordSet = new Set(sbWords);
+  const maxLen = rackLetters.length + blanks + SB_SIZE;
+
+  function sbCanFormWithBoard(word, r, c, dir, rackL, bl){
+    const up = word.toUpperCase();
+    const needed = [];
+    for(let i=0;i<up.length;i++){
+      const rr=dir==='H'?r:r+i;
+      const cc=dir==='H'?c+i:c;
+      if(rr>=SB_SIZE||cc>=SB_SIZE) return false;
+      if(sbBoard[rr][cc]){
+        if(sbBoard[rr][cc].letter!==up[i]) return false;
+      } else {
+        needed.push(up[i].toLowerCase());
+      }
+    }
+    return sbCanForm(needed.join(''), rackL, bl);
+  }
+
+  function allCrossWordsValid(word, r, c, dir){
+    const up = word.toUpperCase();
+    for(let i=0;i<up.length;i++){
+      const rr=dir==='H'?r:r+i;
+      const cc=dir==='H'?c+i:c;
+      if(sbBoard[rr][cc]) continue; // existing tile — skip
+      if(dir==='H'){
+        let rs=rr; while(rs>0&&sbBoard[rs-1][cc]) rs--;
+        let re=rr; while(re<SB_SIZE-1&&sbBoard[re+1][cc]) re++;
+        if(rs===re) continue;
+        let cw='';
+        for(let row=rs;row<=re;row++) cw+=(row===rr ? up[i] : sbBoard[row][cc].letter);
+        if(!sbWordSet.has(cw.toLowerCase())) return false;
+      } else {
+        let cs=cc; while(cs>0&&sbBoard[rr][cs-1]) cs--;
+        let ce=cc; while(ce<SB_SIZE-1&&sbBoard[rr][ce+1]) ce++;
+        if(cs===ce) continue;
+        let cw='';
+        for(let col=cs;col<=ce;col++) cw+=(col===cc ? up[i] : sbBoard[rr][col].letter);
+        if(!sbWordSet.has(cw.toLowerCase())) return false;
+      }
+    }
+    return true;
+  }
+
+  function considerPlacement(word, r, c, dir){
+    if(!sbCanFormWithBoard(word, r, c, dir, rackLetters, blanks)) return;
+    if(canPlaceReason(word, r, c, dir)) return;
+    let score;
+    try{ score=computeWordScore(word, r, c, dir); } catch(e){ return; }
+    const strict = allCrossWordsValid(word, r, c, dir);
+    all.push({word,r,c,dir,score,strict});
+    if(!bestRelaxed || score>bestRelaxed.score) bestRelaxed={word,r,c,dir,score};
+    if(strict && (!bestStrict || score>bestStrict.score)) bestStrict={word,r,c,dir,score};
+  }
+
+  // Index dictionary by length once — turns "scan whole dictionary per window"
+  // into "scan only same-length words per window".
+  const wordsByLength = new Map();
+  for(const w of sbWords){
+    if(!wordsByLength.has(w.length)) wordsByLength.set(w.length, []);
+    wordsByLength.get(w.length).push(w);
+  }
+  const maxBlankSlots = rackLetters.length + blanks; // open ('.') slots a window can have
+
+  function scanLine(getCell, lineLen){
+    const occupied = [];
+    for(let i=0;i<lineLen;i++) if(getCell(i)) occupied.push(i);
+    if(!occupied.length) return [];
+    const seen = new Set(); // dedupe windows reached from multiple anchors
+    const windows = [];
+    const minI = 0, maxI = lineLen-1;
+    for(const anchor of occupied){
+      for(let len=2; len<=Math.min(maxLen,lineLen); len++){
+        for(let start=Math.max(minI,anchor-len+1); start<=Math.min(anchor,maxI-len+1); start++){
+          const end=start+len-1;
+          const key=start+'-'+end;
+          if(seen.has(key)) continue;
+          if(start-1>=0 && getCell(start-1)) continue;
+          if(end+1<lineLen && getCell(end+1)) continue;
+          let hasEmpty=false, blankSlots=0, pattern='';
+          for(let i=start;i<=end;i++){
+            const cell=getCell(i);
+            if(cell){ pattern+=cell.letter.toLowerCase(); }
+            else { pattern+='.'; hasEmpty=true; blankSlots++; }
+          }
+          if(!hasEmpty) continue; // pure overlap, no new tiles — not a legal play
+          if(blankSlots>maxBlankSlots) continue; // rack can't possibly fill this many new cells
+          seen.add(key);
+          windows.push({start,end,pattern});
+        }
+      }
+    }
+    return windows;
+  }
+
+  function matchesPattern(word, pattern){
+    for(let i=0;i<word.length;i++){
+      const p=pattern[i];
+      if(p!=='.' && p!==word[i]) return false;
+    }
+    return true;
+  }
+
+  function searchWindows(windows, lineIndex, dir){
+    for(const win of windows){
+      const len = win.end-win.start+1;
+      const pool = wordsByLength.get(len);
+      if(!pool) continue;
+      for(const w of pool){
+        if(!matchesPattern(w, win.pattern)) continue;
+        const up=w.toUpperCase();
+        if(dir==='H') considerPlacement(up, lineIndex, win.start, 'H');
+        else considerPlacement(up, win.start, lineIndex, 'V');
+      }
+    }
+  }
+
+  for(let r=0;r<SB_SIZE;r++){
+    const getCell=(c)=>sbBoard[r][c];
+    searchWindows(scanLine(getCell, SB_SIZE), r, 'H');
+  }
+  for(let c=0;c<SB_SIZE;c++){
+    const getCell=(r)=>sbBoard[r][c];
+    searchWindows(scanLine(getCell, SB_SIZE), c, 'V');
+  }
+
+  // Empty board (first move): no anchors exist yet, fall back to the simple
+  // rack-only search through the center cell.
+  if(sbBoardIsEmpty()){
+    const candidates = sbWords.filter(w=>w.length<=rackLetters.length+blanks && sbCanForm(w,rackLetters,blanks));
+    for(const word of candidates){
+      const up=word.toUpperCase();
+      for(const dir of ['H','V']){
+        for(let off=0; off<up.length; off++){
+          const r = dir==='H' ? 7 : 7-off;
+          const c = dir==='H' ? 7-off : 7;
+          if(r<0||c<0) continue;
+          considerPlacement(up, r, c, dir);
+        }
+      }
+    }
+  }
+
+  return {all, bestStrict, bestRelaxed};
+}
+
 function showSbHint(){
   clearSbHint();
   const rackRaw = ($('sbRack').value||'').toLowerCase().replace(/[^a-z?]/g,'');
@@ -2128,91 +2378,7 @@ function showSbHint(){
   const rackLetters = rackRaw.replace(/\?/g,'').split('');
   const blanks = (rackRaw.match(/\?/g)||[]).length;
 
-  // Helper: check if a word can be formed given rack letters AND board letters already
-  // occupying cells along the word's path. Board letters count as "free" — only the
-  // remaining letters need to come from the rack.
-  function sbCanFormWithBoard(word, r, c, dir, rackL, bl){
-    const up = word.toUpperCase();
-    // Collect letters needed from rack (board letters along the path are free)
-    const needed = [];
-    for(let i=0;i<up.length;i++){
-      const rr=dir==='H'?r:r+i;
-      const cc=dir==='H'?c+i:c;
-      if(rr>=SB_SIZE||cc>=SB_SIZE) return false;
-      if(sbBoard[rr][cc]){
-        // must match existing tile
-        if(sbBoard[rr][cc].letter!==up[i]) return false;
-      } else {
-        needed.push(up[i].toLowerCase());
-      }
-    }
-    return sbCanForm(needed.join(''), rackL, bl);
-  }
-
-  // Gather candidate words — must be formable from rack (possibly using board letters for shared cells)
-  // We can't know which board letters will be reused without checking per-position,
-  // so include all words up to rack+blanks length and let sbCanFormWithBoard filter per cell.
-  const candidates = sbWords.filter(w=>w.length<=rackLetters.length+blanks+5 && sbCanForm(w,rackLetters,blanks));
-
-  if(!candidates.length){
-    $('sbHintLabel').textContent='No playable words found with your rack.';
-    return;
-  }
-
-  // Build a fast lookup set from the dictionary
-  const sbWordSet = new Set(sbWords);
-
-  // Returns true if all cross-words formed by placing `word` at (r,c,dir) are valid dictionary words.
-  function allCrossWordsValid(word, r, c, dir){
-    const up = word.toUpperCase();
-    for(let i=0;i<up.length;i++){
-      const rr=dir==='H'?r:r+i;
-      const cc=dir==='H'?c+i:c;
-      if(sbBoard[rr][cc]) continue; // existing tile — skip
-      if(dir==='H'){
-        // perpendicular = vertical: scan up and down from rr,cc
-        let rs=rr; while(rs>0&&sbBoard[rs-1][cc]) rs--;
-        let re=rr; while(re<SB_SIZE-1&&sbBoard[re+1][cc]) re++;
-        if(rs===re) continue; // isolated, no cross-word formed
-        let cw='';
-        for(let row=rs;row<=re;row++) cw+=(row===rr ? up[i] : sbBoard[row][cc].letter);
-        if(!sbWordSet.has(cw.toLowerCase())) return false;
-      } else {
-        // perpendicular = horizontal: scan left and right from rr,cc
-        let cs=cc; while(cs>0&&sbBoard[rr][cs-1]) cs--;
-        let ce=cc; while(ce<SB_SIZE-1&&sbBoard[rr][ce+1]) ce++;
-        if(cs===ce) continue; // isolated, no cross-word formed
-        let cw='';
-        for(let col=cs;col<=ce;col++) cw+=(col===cc ? up[i] : sbBoard[rr][col].letter);
-        if(!sbWordSet.has(cw.toLowerCase())) return false;
-      }
-    }
-    return true;
-  }
-
-  // Collect all valid placements sorted by score descending, then pick the best
-  // that passes cross-word validation. Fall back to best ignoring cross-words if needed.
-  let bestStrict = null;   // best placement where all cross-words are valid
-  let bestRelaxed = null;  // best placement ignoring cross-word validity (fallback)
-
-  for(const word of candidates){
-    const up=word.toUpperCase();
-    for(const dir of ['H','V']){
-      for(let r=0;r<SB_SIZE;r++){
-        for(let c=0;c<SB_SIZE;c++){
-          if(!sbCanFormWithBoard(word,r,c,dir,rackLetters,blanks)) continue;
-          if(canPlaceReason(up,r,c,dir)) continue;
-          let score;
-          try{ score=computeWordScore(up,r,c,dir); } catch(e){ continue; }
-          if(!bestRelaxed||score>bestRelaxed.score) bestRelaxed={word:up,r,c,dir,score};
-          if(allCrossWordsValid(up,r,c,dir)){
-            if(!bestStrict||score>bestStrict.score) bestStrict={word:up,r,c,dir,score};
-          }
-        }
-      }
-    }
-  }
-
+  const {bestStrict, bestRelaxed} = sbFindBoardPlacements(rackLetters, blanks);
   const best = bestStrict || bestRelaxed;
 
   if(!best){
@@ -2486,6 +2652,22 @@ function toggleScrabbleBoard(){
     closeSbLetterPopover();
     clearSbHint();
   }
+}
+
+// Manual word entry — bypasses the 7-letter rack cap entirely. Used for placing
+// an opponent's word (or any word) that's longer than 7 letters because it was
+// built off tiles already on the board. Feeds straight into the normal
+// selectWordForPlacement → click cell / type coordinate → placeSbWord flow,
+// so scoring (including cross-words and bingo bonus) works exactly the same.
+function selectManualSbWord(){
+  const input=$('sbManualWordInput');
+  const word=(input.value||'').toUpperCase().replace(/[^A-Z]/g,'');
+  if(!word){ input.focus(); return; }
+  if(sbWords.length && !sbWords.includes(word.toLowerCase())){
+    $('sbHintLabel').textContent='⚠️ "'+word+'" isn\'t in the loaded dictionary — placing it anyway.';
+  }
+  selectWordForPlacement(word);
+  input.value='';
 }
 
 function selectWordForPlacement(word){
@@ -2912,16 +3094,21 @@ function openSbLetterPopover(r,c,cellEl){
       manualToggleBtn.style.display='none';
     }
   }
-  // Position popover near the cell
+  // Position popover near the cell, clamped to viewport
+  pop.classList.add('open');
+  $('sbLetterPopoverBackdrop').classList.add('open');
   const rect=cellEl.getBoundingClientRect();
-  const pw=170;
+  const margin=8;
+  // Measure after it's visible so width/height reflect actual (responsive) size
+  const pw=pop.offsetWidth||240;
+  const ph=pop.offsetHeight||220;
   let left=rect.left+rect.width/2-pw/2;
   let top=rect.bottom+6;
-  if(left+pw>window.innerWidth-8) left=window.innerWidth-pw-8;
-  if(left<8) left=8;
-  if(top+160>window.innerHeight) top=rect.top-160;
+  if(left+pw>window.innerWidth-margin) left=window.innerWidth-pw-margin;
+  if(left<margin) left=margin;
+  if(top+ph>window.innerHeight-margin) top=rect.top-ph-6;
+  if(top<margin) top=margin;
   pop.style.left=left+'px'; pop.style.top=top+'px';
-  pop.classList.add('open');
   if(!isWordTile) setTimeout(()=>{ $('sbLetterInput').focus(); $('sbLetterInput').select(); },30);
 }
 
@@ -3051,6 +3238,7 @@ function deleteSbExistingTile(){
 function recalcSbPlacedScores(){
   sbPlacedWords.forEach(w=>{
     let wordMult=1, score=0;
+    let newTileCount=0;
     for(let i=0;i<w.word.length;i++){
       const rr=w.dir==='H'?w.row:w.row+i;
       const cc=w.dir==='H'?w.col+i:w.col;
@@ -3061,6 +3249,7 @@ function recalcSbPlacedScores(){
         score += isBlank ? 0 : (LETTER_VALUES[w.word[i]]||0);
         continue;
       }
+      if(isOwnCell) newTileCount++;
       const p=SB_PREMIUMS[rr][cc];
       let lv = isBlank ? 0 : (LETTER_VALUES[w.word[i]]||0);
       if(p==='tls') lv*=3;
@@ -3069,7 +3258,7 @@ function recalcSbPlacedScores(){
       if(p==='tws') wordMult*=3;
       else if(p==='dws'||p==='star') wordMult*=2;
     }
-    w.score = score*wordMult;
+    w.score = score*wordMult + (newTileCount>=7 ? 50 : 0);
   });
   if(sbTurnMode){
     sbMyScore = sbPlacedWords.filter(w=>w.turnPlayer==='me').reduce((s,w)=>s+w.score,0);
@@ -3082,9 +3271,10 @@ function closeSbLetterPopover(){
   sbConfirming=false;
   sbPopoverCell=null;
   $('sbLetterPopover').classList.remove('open');
+  $('sbLetterPopoverBackdrop').classList.remove('open');
 }
 
-// Close popover on outside click
+// Close popover on outside click (backdrop click also handles this)
 document.addEventListener('click',e=>{
   const pop=$('sbLetterPopover');
   if(pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.closest('.sb-board-cell')){
@@ -3094,7 +3284,9 @@ document.addEventListener('click',e=>{
 </script>
 
 <!-- Scrabble letter input popover -->
+<div class="sb-letter-popover-backdrop" id="sbLetterPopoverBackdrop" onclick="closeSbLetterPopover()"></div>
 <div class="sb-letter-popover" id="sbLetterPopover">
+  <button class="sb-letter-popover-close" onclick="closeSbLetterPopover()" aria-label="Close" title="Close">✕</button>
   <div class="sb-letter-popover-label" id="sbLetterPopoverLabel">Enter letter</div>
   <div class="sb-letter-popover-coord" id="sbLetterCoord"></div>
   <input class="sb-letter-input" id="sbLetterInput" maxlength="2" autocomplete="off" spellcheck="false" inputmode="text" enterkeyhint="done" />
@@ -3104,12 +3296,10 @@ document.addEventListener('click',e=>{
     <button class="sb-letter-popover-btn primary" onclick="confirmSbLetter()">✓ Place</button>
     <button class="sb-letter-popover-btn" id="sbToggleBlankBtnManual" onclick="toggleSbManualTileBlank()" style="display:none">⇄ Blank</button>
     <button class="sb-letter-popover-btn danger" onclick="deleteSbManualTile()">🗑 Remove</button>
-    <button class="sb-letter-popover-btn" onclick="closeSbLetterPopover()">✕</button>
   </div>
   <div class="sb-letter-popover-btns" id="sbLetterPopoverBtns2" style="display:none">
     <button class="sb-letter-popover-btn primary" id="sbToggleBlankBtn" onclick="toggleSbTileBlank()">⇄ Toggle Blank</button>
     <button class="sb-letter-popover-btn danger" onclick="deleteSbExistingTile()">🗑 Remove word</button>
-    <button class="sb-letter-popover-btn" onclick="closeSbLetterPopover()">✕</button>
   </div>
 </div>
 
