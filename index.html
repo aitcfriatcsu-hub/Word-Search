@@ -236,7 +236,19 @@
   .sb-board-btn.active{color:var(--accent);border-color:var(--accent)}
   .sb-board-hint{font-size:.75rem;color:var(--muted);margin-bottom:.75rem;line-height:1.6;background:var(--pill-bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .875rem}
   .sb-board-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:.75rem}
+  .sb-board-labeled{display:inline-grid;grid-template-columns:18px auto;grid-template-rows:18px auto;gap:2px}
+  .sb-board-corner{width:18px;height:18px}
+  .sb-board-col-labels{display:grid;grid-template-columns:repeat(15,36px);gap:2px;height:18px}
+  .sb-board-row-labels{display:grid;grid-template-rows:repeat(15,36px);gap:2px;width:18px}
+  .sb-board-coord-label{display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;color:var(--muted);font-family:var(--mono);user-select:none}
   .sb-board-grid{display:inline-grid;grid-template-columns:repeat(15,1fr);gap:2px;background:var(--border);border:2px solid var(--border);border-radius:6px;padding:2px;min-width:0}
+  @media(max-width:600px){
+    .sb-board-labeled{grid-template-columns:18px auto;grid-template-rows:18px auto}
+    .sb-board-corner{width:18px;height:18px}
+    .sb-board-col-labels{grid-template-columns:repeat(15,30px);height:18px}
+    .sb-board-row-labels{grid-template-rows:repeat(15,30px);width:18px}
+    .sb-board-coord-label{font-size:.55rem}
+  }
   .sb-board-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:.65rem;font-weight:700;text-align:center;cursor:pointer;transition:opacity .1s,box-shadow .1s;position:relative;user-select:none;line-height:1.1}
   .sb-board-cell:hover{opacity:.82;box-shadow:inset 0 0 0 2px var(--accent)}
   .sb-board-cell.selected{box-shadow:inset 0 0 0 2px var(--accent)!important;opacity:1}
@@ -291,7 +303,7 @@
   .sb-place-actions{display:flex;gap:6px;flex-wrap:wrap}
   .sb-score-total{font-size:.8125rem;color:var(--muted);margin-bottom:.5rem}
   .sb-score-total strong{color:var(--text)}
-  @media(max-width:600px){.sb-board-cell{width:22px;height:22px;font-size:.45rem}.sb-board-tile{font-size:.65rem}.sb-board-tile .sb-val{display:none}}
+  @media(max-width:600px){.sb-board-cell{width:30px;height:30px;font-size:.55rem}.sb-board-tile{font-size:.8rem}.sb-board-tile .sb-val{font-size:.4rem}}
 
   /* Letter input popover */
   .sb-letter-popover-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.25);display:none}
@@ -505,7 +517,7 @@ together"></textarea>
             <span style="font-size:1.25rem;line-height:1;flex-shrink:0">📗</span>
             <span style="display:flex;flex-direction:column;gap:1px">
               <span style="font-size:.8125rem;font-weight:600;color:var(--text);line-height:1.2">CSW24</span>
-              <span style="font-size:.68rem;color:var(--muted);line-height:1.2">International</span>
+              <span style="font-size:.68rem;color:var(--muted);line-height:1.2">UK / International</span>
             </span>
           </button>
           <button id="sbBtn_NWL2023" onclick="loadSbPreset('NWL2023')" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-align:left;font-family:var(--font);flex:1;min-width:120px">
@@ -635,7 +647,12 @@ together"></textarea>
         </div>
 
         <div class="sb-board-wrap">
-          <div class="sb-board-grid" id="sbBoardGrid"></div>
+          <div class="sb-board-labeled">
+            <div class="sb-board-corner"></div>
+            <div class="sb-board-col-labels" id="sbBoardColLabels"></div>
+            <div class="sb-board-row-labels" id="sbBoardRowLabels"></div>
+            <div class="sb-board-grid" id="sbBoardGrid"></div>
+          </div>
         </div>
 
         <!-- Board legend -->
@@ -764,7 +781,7 @@ together"></textarea>
       <div class="modal-section">
         <div class="modal-label">Preset Dictionaries</div>
         <div class="modal-row"><span class="modal-icon">📍</span><span>The preset dictionary buttons sit <strong>beside the Load Dictionary button</strong> at the bottom of the word list — click any to load it instantly.</span></div>
-        <div class="modal-row"><span class="modal-icon">📗</span><span><strong>CSW24</strong> — Collins Scrabble Words 2024, the standard for international Scrabble.</span></div>
+        <div class="modal-row"><span class="modal-icon">📗</span><span><strong>CSW24</strong> — Collins Scrabble Words 2024, the standard for UK and international Scrabble.</span></div>
         <div class="modal-row"><span class="modal-icon">📘</span><span><strong>NWL2023</strong> — NASPA Word List 2023 Edition, the standard for North American Scrabble.</span></div>
         <div class="modal-row"><span class="modal-icon">📙</span><span><strong>SOWPODS</strong> — A comprehensive combined word list widely used in competitive English Scrabble.</span></div>
         <div class="modal-row"><span class="modal-icon">📒</span><span><strong>English™</strong> — Just English words™.</span></div>
@@ -2211,6 +2228,28 @@ let sbHintPlacement = null; // {word, r, c, dir, score}
 // only same-length dictionary words via a fast manual char-compare — no regex
 // overhead, no per-window full-dictionary scan — which stays fast even on a
 // 200k+ word list and a busy late-game board.
+// Builds a per-letter blank mask (same length as word) for a specific board
+// placement: only positions landing on EMPTY cells consume rack tiles/blanks
+// (letters overlapping existing board tiles are free and never blanks here).
+// Uses the same greedy matching order as sbCanForm so it stays consistent
+// with the legality check it pairs with.
+function sbBlankMaskForPlacement(word, r, c, dir, rackL, bl){
+  const up = word.toUpperCase();
+  const freq = {};
+  for(const ch of rackL) freq[ch]=(freq[ch]||0)+1;
+  let blanksLeft = bl;
+  const mask = new Array(up.length).fill(false);
+  for(let i=0;i<up.length;i++){
+    const rr=dir==='H'?r:r+i;
+    const cc=dir==='H'?c+i:c;
+    if(rr>=SB_SIZE||cc>=SB_SIZE||sbBoard[rr][cc]) continue; // overlaps existing tile (or off-board) — never a blank
+    const lower=up[i].toLowerCase();
+    if(freq[lower] && freq[lower]>0){ freq[lower]--; }
+    else if(blanksLeft>0){ blanksLeft--; mask[i]=true; }
+  }
+  return mask;
+}
+
 function sbFindBoardPlacements(rackLetters, blanks){
   const all = [];          // every valid {word,r,c,dir,score,strict} placement found
   let bestStrict = null, bestRelaxed = null;
@@ -2264,7 +2303,10 @@ function sbFindBoardPlacements(rackLetters, blanks){
     if(!sbCanFormWithBoard(word, r, c, dir, rackLetters, blanks)) return;
     if(canPlaceReason(word, r, c, dir)) return;
     let score;
-    try{ score=computeWordScore(word, r, c, dir); } catch(e){ return; }
+    try{
+      const blankMask = sbBlankMaskForPlacement(word, r, c, dir, rackLetters, blanks);
+      score=computeWordScore(word, r, c, dir, blankMask);
+    } catch(e){ return; }
     const strict = allCrossWordsValid(word, r, c, dir);
     all.push({word,r,c,dir,score,strict});
     if(!bestRelaxed || score>bestRelaxed.score) bestRelaxed={word,r,c,dir,score};
@@ -2388,31 +2430,7 @@ function showSbHint(){
 
   sbHintPlacement=best;
   const wasRelaxed = !bestStrict && !!bestRelaxed;
-  // Highlight cells
-  for(let i=0;i<best.word.length;i++){
-    const r2=best.dir==='H'?best.r:best.r+i;
-    const c2=best.dir==='H'?best.c+i:best.c;
-    const cellEl=$('sbBoardGrid').querySelector('[data-r="'+r2+'"][data-c="'+c2+'"]');
-    if(!cellEl) continue;
-    const isNew=!sbBoard[r2][c2];
-    if(isNew){
-      // add a ghost tile for the new letter
-      cellEl.dataset.origText=cellEl.textContent;
-      cellEl.textContent='';
-      const tileEl=document.createElement('div');
-      tileEl.className='sb-board-tile';
-      tileEl.textContent=best.word[i];
-      const val=document.createElement('span');
-      val.className='sb-val';
-      val.textContent=LETTER_VALUES[best.word[i]]||'';
-      tileEl.appendChild(val);
-      cellEl.appendChild(tileEl);
-      cellEl.classList.add('hint-cell-new');
-    } else {
-      cellEl.classList.add('hint-cell');
-    }
-    cellEl.dataset.isHint='1';
-  }
+  paintSbHintHighlight(best);
   const coord=String.fromCharCode(65+best.c)+(best.r+1);
   const dirLabel=best.dir==='H'?'Across':'Down';
   const note = wasRelaxed ? ' ⚠️ (cross-words unverified — check manually)' : '';
@@ -2426,6 +2444,36 @@ function showSbHint(){
   wordTile.dataset.word = best.word.toUpperCase();
   wordTile.onclick = ()=>selectWordForPlacement(best.word.toUpperCase());
   $('sbHintWordContainer').style.display='flex';
+}
+
+// Paint the red-glow hint highlight (ghost tiles on empty cells, glow ring on
+// existing ones) onto the live board DOM. Pulled out of showSbHint so it can
+// be re-applied after buildSbBoard() rebuilds the grid (e.g. when the user
+// selects the hinted word for placement and we want the glow to persist).
+function paintSbHintHighlight(placement){
+  for(let i=0;i<placement.word.length;i++){
+    const r2=placement.dir==='H'?placement.r:placement.r+i;
+    const c2=placement.dir==='H'?placement.c+i:placement.c;
+    const cellEl=$('sbBoardGrid').querySelector('[data-r="'+r2+'"][data-c="'+c2+'"]');
+    if(!cellEl) continue;
+    const isNew=!sbBoard[r2][c2];
+    if(isNew){
+      cellEl.dataset.origText=cellEl.textContent;
+      cellEl.textContent='';
+      const tileEl=document.createElement('div');
+      tileEl.className='sb-board-tile';
+      tileEl.textContent=placement.word[i];
+      const val=document.createElement('span');
+      val.className='sb-val';
+      val.textContent=LETTER_VALUES[placement.word[i]]||'';
+      tileEl.appendChild(val);
+      cellEl.appendChild(tileEl);
+      cellEl.classList.add('hint-cell-new');
+    } else {
+      cellEl.classList.add('hint-cell');
+    }
+    cellEl.dataset.isHint='1';
+  }
 }
 
 function clearSbHint(){
@@ -2546,7 +2594,28 @@ function sbRemoveGhost(){
   });
 }
 
+function buildSbBoardLabels(){
+  const colEl=$('sbBoardColLabels'), rowEl=$('sbBoardRowLabels');
+  if(colEl.children.length===0){
+    for(let c=0;c<SB_SIZE;c++){
+      const lab=document.createElement('div');
+      lab.className='sb-board-coord-label';
+      lab.textContent=String.fromCharCode(65+c);
+      colEl.appendChild(lab);
+    }
+  }
+  if(rowEl.children.length===0){
+    for(let r=0;r<SB_SIZE;r++){
+      const lab=document.createElement('div');
+      lab.className='sb-board-coord-label';
+      lab.textContent=r+1;
+      rowEl.appendChild(lab);
+    }
+  }
+}
+
 function buildSbBoard(){
+  buildSbBoardLabels();
   const grid=$('sbBoardGrid');
   grid.innerHTML='';
 
@@ -2613,8 +2682,12 @@ function sbPreviewScore(r,c){
     $('sbPlaceScoreHint').textContent='\u26a0\ufe0f Can\'t place here';
     return;
   }
-  const crossScore=computeCrossWordScores(sbSelectedWord,r,c,sbPlaceDir);
-  const total=computeWordScore(sbSelectedWord,r,c,sbPlaceDir);
+  const rackRaw = ($('sbRack').value||'').toLowerCase().replace(/[^a-z?]/g,'');
+  const rackLetters = rackRaw.replace(/\?/g,'').split('');
+  const blanks = (rackRaw.match(/\?/g)||[]).length;
+  const blankMask = sbBlankMaskForPlacement(sbSelectedWord, r, c, sbPlaceDir, rackLetters, blanks);
+  const crossScore=computeCrossWordScores(sbSelectedWord,r,c,sbPlaceDir,blankMask);
+  const total=computeWordScore(sbSelectedWord,r,c,sbPlaceDir,blankMask);
   const mainScore=total-crossScore;
   const coord=String.fromCharCode(65+c)+(r+1);
   if(crossScore>0){
@@ -2672,7 +2745,11 @@ function selectManualSbWord(){
 
 function selectWordForPlacement(word){
   closeSbLetterPopover();
-  clearSbHint(); // remove hint overlays so placement clicks work
+  // Keep the hint's red glow showing if the user is selecting the exact word
+  // the hint suggested (e.g. after copying it) — only clear it if they're
+  // switching to a different word.
+  const isHintWord = sbHintPlacement && sbHintPlacement.word.toUpperCase()===word.toUpperCase();
+  if(!isHintWord) clearSbHint();
   sbSelectedWord=word;
   $('sbPlaceWord').textContent=word;
   $('sbPlacePanel').style.display='block';
@@ -2681,6 +2758,7 @@ function selectWordForPlacement(word){
   if($('sbCoordInput')) { $('sbCoordInput').value=''; $('sbCoordInput').placeholder='e.g. H8'; }
   if($('sbCoordError')) $('sbCoordError').style.display='none';
   buildSbBoard();
+  if(isHintWord) paintSbHintHighlight(sbHintPlacement);
   document.querySelectorAll('.sb-word-tile').forEach(t=>{
     t.style.borderColor=(t.dataset.word&&t.dataset.word.toUpperCase()===word)?'var(--accent)':'';
   });
@@ -2693,6 +2771,7 @@ function cancelSbPlace(){
   if($('sbCoordInput')) $('sbCoordInput').value='';
   if($('sbCoordError')) $('sbCoordError').style.display='none';
   document.querySelectorAll('.sb-word-tile').forEach(t=>t.style.borderColor='');
+  clearSbHint();
   buildSbBoard();
 }
 
@@ -2801,32 +2880,40 @@ function canPlaceReason(word,r,c,dir){
   return null;
 }
 
-function computeWordScore(word,r,c,dir){
-  let wordMult=1, score=0;
+// blankMask: optional boolean array (same length as word) marking which letters
+// are being covered by a blank tile for THIS placement — only applies to cells
+// that don't already have a tile on the board (new placements). Blanks always
+// score 0 and never benefit from letter premiums (real Scrabble rule), though
+// they still count toward word multipliers and the 7-tile bingo bonus.
+function computeWordScore(word,r,c,dir,blankMask){
+  let wordMult=1, score=0, newTileCount=0;
   for(let i=0;i<word.length;i++){
     const rr=dir==='H'?r:r+i;
     const cc=dir==='H'?c+i:c;
     if(sbBoard[rr][cc]){ score+=sbBoard[rr][cc].blank?0:(LETTER_VALUES[word[i]]||0); continue; }
+    newTileCount++;
+    const isBlank = blankMask && blankMask[i];
     const p=SB_PREMIUMS[rr][cc];
-    let lv=LETTER_VALUES[word[i]]||0;
-    if(p==='tls') lv*=3;
-    else if(p==='dls') lv*=2;
+    let lv = isBlank ? 0 : (LETTER_VALUES[word[i]]||0);
+    if(!isBlank){ if(p==='tls') lv*=3; else if(p==='dls') lv*=2; }
     score+=lv;
     if(p==='tws') wordMult*=3;
     else if(p==='dws'||p==='star') wordMult*=2;
   }
-  return score*wordMult + computeCrossWordScores(word,r,c,dir);
+  const bingoBonus = newTileCount>=7 ? 50 : 0;
+  return score*wordMult + computeCrossWordScores(word,r,c,dir,blankMask) + bingoBonus;
 }
 
 // Score all cross-words formed by newly placed tiles touching existing tiles perpendicularly.
 // For each new tile (not already on board), if it has neighbours in the perpendicular direction,
 // score the full perpendicular word — applying premiums only on the new tile's square.
-function computeCrossWordScores(word,r,c,dir){
+function computeCrossWordScores(word,r,c,dir,blankMask){
   let total=0;
   for(let i=0;i<word.length;i++){
     const rr=dir==='H'?r:r+i;
     const cc=dir==='H'?c+i:c;
     if(sbBoard[rr][cc]) continue; // already-filled cell: its cross-word was scored when it was placed
+    const isBlank = blankMask && blankMask[i];
     let wMult=1, wScore=0;
     if(dir==='H'){
       // perpendicular is vertical: scan up then down from rr
@@ -2835,10 +2922,10 @@ function computeCrossWordScores(word,r,c,dir){
       if(rs===re) continue; // no vertical neighbours, no cross-word
       for(let row=rs;row<=re;row++){
         if(row===rr){
-          // the new tile — apply premiums
+          // the new tile — apply premiums (unless it's a blank)
           const p=SB_PREMIUMS[rr][cc];
-          let lv=LETTER_VALUES[word[i]]||0;
-          if(p==='tls') lv*=3; else if(p==='dls') lv*=2;
+          let lv = isBlank ? 0 : (LETTER_VALUES[word[i]]||0);
+          if(!isBlank){ if(p==='tls') lv*=3; else if(p==='dls') lv*=2; }
           wScore+=lv;
           if(p==='tws') wMult*=3; else if(p==='dws'||p==='star') wMult*=2;
         } else {
@@ -2853,8 +2940,8 @@ function computeCrossWordScores(word,r,c,dir){
       for(let col=cs;col<=ce;col++){
         if(col===cc){
           const p=SB_PREMIUMS[rr][cc];
-          let lv=LETTER_VALUES[word[i]]||0;
-          if(p==='tls') lv*=3; else if(p==='dls') lv*=2;
+          let lv = isBlank ? 0 : (LETTER_VALUES[word[i]]||0);
+          if(!isBlank){ if(p==='tls') lv*=3; else if(p==='dls') lv*=2; }
           wScore+=lv;
           if(p==='tws') wMult*=3; else if(p==='dws'||p==='star') wMult*=2;
         } else {
@@ -2986,20 +3073,12 @@ function placeSbWord(r,c){
     return;
   }
   const id=++sbWordIdCounter;
-  let score=0;
-  try{ score=computeWordScore(word,r,c,dir); } catch(e){ console.warn('Score error:',e); }
-  // Bingo bonus: +50 if all 7 rack tiles are used (none of the word's cells were pre-existing)
-  let newTileCount=0;
-  for(let i=0;i<word.length;i++){
-    const rr=dir==='H'?r:r+i;
-    const cc=dir==='H'?c+i:c;
-    if(!sbBoard[rr][cc]) newTileCount++;
-  }
-  if(newTileCount>=7) score+=50;
   const rackRaw = ($('sbRack').value||'').toLowerCase().replace(/[^a-z?]/g,'');
   const rackLetters = rackRaw.replace(/\?/g,'').split('');
   const blanks = (rackRaw.match(/\?/g)||[]).length;
   const blankMask = sbBlankMask(word.toLowerCase(), rackLetters, blanks);
+  let score=0;
+  try{ score=computeWordScore(word,r,c,dir,blankMask); } catch(e){ console.warn('Score error:',e); }
   for(let i=0;i<word.length;i++){
     const rr=dir==='H'?r:r+i;
     const cc=dir==='H'?c+i:c;
@@ -3019,6 +3098,7 @@ function placeSbWord(r,c){
   sbSelectedWord=null;
   $('sbPlacePanel').style.display='none';
   document.querySelectorAll('.sb-word-tile').forEach(t=>t.style.borderColor='');
+  clearSbHint();
   buildSbBoard();
 }
 
